@@ -1,12 +1,12 @@
 from core.logger import setup_logger
 from core.config import load_config
+from core.display import display_section, display_dictionary
 
 from collectors.system_collector import collect_system_info
 
 
 
 def start_cyberguard():
-
 
     logger = setup_logger()
 
@@ -16,11 +16,9 @@ def start_cyberguard():
     logger.info("CyberGuard application started")
 
 
-    print("=" * 50)
-
-    print("CyberGuard Endpoint Security Assessment System")
-
-    print("=" * 50)
+    display_section(
+        "CyberGuard Endpoint Security Assessment System"
+    )
 
 
     print("Version:", config["version"])
@@ -28,17 +26,15 @@ def start_cyberguard():
     print("Scan Mode:", config["scan_mode"])
 
 
-
-    print("\nCollecting Endpoint Information...\n")
+    display_section(
+        "Endpoint Information"
+    )
 
 
     system_info = collect_system_info()
 
 
-    for key, value in system_info.items():
-
-        print(key, ":", value)
-
+    display_dictionary(system_info)
 
 
     logger.info(
