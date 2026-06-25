@@ -3,7 +3,7 @@ from core.config import load_config
 from core.display import display_section, display_dictionary
 
 from collectors.system_collector import collect_system_info
-
+from collectors.windows_audit import collect_windows_security
 
 
 def start_cyberguard():
@@ -35,6 +35,21 @@ def start_cyberguard():
 
 
     display_dictionary(system_info)
+
+    display_section(
+        "Windows Security Audit"
+    )
+
+
+    security_info = collect_windows_security()
+
+
+    display_dictionary(security_info)
+
+
+    logger.info(
+        "Windows security audit completed"
+    )
 
 
     logger.info(
