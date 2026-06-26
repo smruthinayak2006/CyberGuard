@@ -4,7 +4,7 @@ from core.display import display_section, display_dictionary
 
 from collectors.system_collector import collect_system_info
 from collectors.windows_audit import collect_windows_security
-
+from analyzers.process_analyzer import collect_processes
 
 def start_cyberguard():
 
@@ -40,7 +40,6 @@ def start_cyberguard():
         "Windows Security Audit"
     )
 
-
     security_info = collect_windows_security()
 
 
@@ -56,7 +55,29 @@ def start_cyberguard():
         "Endpoint information collected successfully"
     )
 
+    display_section("Running Processes")
 
+    processes = collect_processes()
+
+    for process in processes[:15]:
+
+        print(
+
+            f"PID: {process['pid']}"
+
+            f" | "
+
+            f"{process['name']}"
+
+            f" | "
+
+            f"CPU: {process['cpu']}%"
+
+            f" | "
+
+            f"RAM: {process['memory']:.2f}%"
+
+        )
 
 if __name__ == "__main__":
 
