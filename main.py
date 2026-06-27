@@ -62,21 +62,12 @@ def start_cyberguard():
     for process in processes[:15]:
 
         print(
-
-            f"PID: {process['pid']}"
-
-            f" | "
-
-            f"{process['name']}"
-
-            f" | "
-
-            f"CPU: {process['cpu']}%"
-
-            f" | "
-
-            f"RAM: {process['memory']:.2f}%"
-
+            f"PID: {process['pid']}\n"
+            f"Name: {process['name']}\n"
+            f"CPU: {process['cpu']}%\n"
+            f"RAM: {process['memory']:.2f}%\n"
+            f"Path: {process['path']}\n"
+            + "-" * 50
         )
 
 if __name__ == "__main__":
