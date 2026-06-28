@@ -1,3 +1,5 @@
+from importlib.resources import files
+
 from core.logger import setup_logger
 from core.config import load_config
 from core.display import display_section, display_dictionary
@@ -5,6 +7,7 @@ from core.display import display_section, display_dictionary
 from collectors.system_collector import collect_system_info
 from collectors.windows_audit import collect_windows_security
 from analyzers.process_analyzer import collect_processes
+from analyzers.file_integrity import scan_directory
 
 def start_cyberguard():
 
@@ -69,6 +72,18 @@ def start_cyberguard():
             f"Path: {process['path']}\n"
             + "-" * 50
         )
+
+    display_section("File Integrity Monitoring")
+
+    files = scan_directory("test_files")
+
+    for file in files:
+
+        print(f"File   : {file['file']}")
+        print(f"SHA256 : {file['sha256']}")
+        print("-" * 60)
+
+
 
 if __name__ == "__main__":
 
