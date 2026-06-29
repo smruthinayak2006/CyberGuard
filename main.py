@@ -9,6 +9,14 @@ from collectors.windows_audit import collect_windows_security
 from analyzers.process_analyzer import collect_processes
 from analyzers.file_integrity import scan_directory
 
+
+from database.db_manager import (
+    initialize_database,
+    save_file_results
+)
+
+initialize_database()
+
 def start_cyberguard():
 
     logger = setup_logger()
@@ -76,7 +84,8 @@ def start_cyberguard():
     display_section("File Integrity Monitoring")
 
     files = scan_directory("test_files")
-
+    save_file_results(files)
+    
     for file in files:
 
         print(f"File   : {file['file']}")
