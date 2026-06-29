@@ -1,5 +1,8 @@
 import hashlib
+import json
 from pathlib import Path
+
+BASELINE_FILE = "database/hash_baseline.json"
 
 
 def calculate_sha256(file_path):
@@ -15,7 +18,31 @@ def calculate_sha256(file_path):
     return sha256.hexdigest()
 
 
+def load_baseline():
+
+    path = Path(BASELINE_FILE)
+
+    if not path.exists():
+
+        return {}
+
+    with open(path, "r") as file:
+
+        return json.load(file)
+
+
+def save_baseline(data):
+
+    with open(BASELINE_FILE, "w") as file:
+
+        json.dump(data, file, indent=4)
+
+
 def scan_directory(directory):
+
+    baseline = load_baseline()
+
+    current = {}
 
     results = []
 
@@ -25,18 +52,34 @@ def scan_directory(directory):
 
         if file.is_file():
 
-            try:
+            file_path = str(file)
 
-                results.append({
+            current_hash = calculate_sha256(file)
 
-                    "file": str(file),
+            current[file_path] = current_hash
 
-                    "sha256": calculate_sha256(file)
+            if file_path not in baseline:
 
-                })
+                status = "NEW"
 
-            except Exception:
+            elif baseline[file_path] == current_hash:
 
-                continue
+                status = "UNCHANGED"
+
+            else:
+
+                status = "MODIFIED"
+
+            results.append({
+
+                "file": file_path,
+
+                "sha256": current_hash,
+
+                "status": status
+
+            })
+
+    save_baseline(current)
 
     return results

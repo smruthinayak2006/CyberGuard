@@ -81,6 +81,7 @@ def start_cyberguard():
 
         print(f"File   : {file['file']}")
         print(f"SHA256 : {file['sha256']}")
+        print(f"Status : {file['status']}")
         print("-" * 60)
 
 
