@@ -1,4 +1,5 @@
 import sqlite3
+from datetime import datetime
 
 DATABASE = "database/cyberguard.db"
 
@@ -9,86 +10,83 @@ def get_connection():
 
 def initialize_database():
 
-    connection = get_connection()
-    cursor = connection.cursor()
+    conn = get_connection()
+    cursor = conn.cursor()
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS file_integrity (
 
             id INTEGER PRIMARY KEY AUTOINCREMENT,
 
-            file_path TEXT,
+            file_path TEXT NOT NULL,
 
-            sha256 TEXT,
+            sha256 TEXT NOT NULL,
 
-            status TEXT,
+            status TEXT NOT NULL,
 
-            scan_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            scan_time TEXT NOT NULL
         )
     """)
 
-    connection.commit()
-    connection.close()
+    conn.commit()
+    conn.close()
 
 
-import sqlite3
+def save_file_results(file_results):
 
-DATABASE = "database/cyberguard.db"
+    conn = get_connection()
+    cursor = conn.cursor()
 
+    scan_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-def get_connection():
-    return sqlite3.connect(DATABASE)
-
-
-def initialize_database():
-
-    connection = get_connection()
-    cursor = connection.cursor()
-
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS file_integrity (
-
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-
-            file_path TEXT,
-
-            sha256 TEXT,
-
-            status TEXT,
-
-            scan_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    """)
-
-    connection.commit()
-    connection.close()
-
-def save_file_results(results):
-
-    connection = get_connection()
-    cursor = connection.cursor()
-
-    for file in results:
+    for file in file_results:
 
         cursor.execute("""
 
             INSERT INTO file_integrity
-
             (
                 file_path,
                 sha256,
-                status
+                status,
+                scan_time
             )
 
-            VALUES (?, ?, ?)
+            VALUES (?, ?, ?, ?)
 
         """, (
 
             file["file"],
             file["sha256"],
-            file["status"]
+            file["status"],
+            scan_time
 
         ))
 
-    connection.commit()
-    connection.close()
+    conn.commit()
+    conn.close()
+
+
+def get_file_history():
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+
+        SELECT
+            file_path,
+            sha256,
+            status,
+            scan_time
+
+        FROM file_integrity
+
+        ORDER BY id DESC
+
+    """)
+
+    data = cursor.fetchall()
+
+    conn.close()
+
+    return data

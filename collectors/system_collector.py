@@ -34,11 +34,9 @@ def collect_system_info():
 
         "boot_time": str(boot_time),
 
-        "cpu_usage": str(psutil.cpu_percent(interval=1)) + "%",
-
-        "ram_usage": str(psutil.virtual_memory().percent) + "%",
-
-        "disk_usage": str(psutil.disk_usage('/').percent) + "%"
+        "cpu_usage": round(psutil.cpu_percent(interval=1), 1),
+        "ram_usage": round(psutil.virtual_memory().percent, 1),
+        "disk_usage": round(psutil.disk_usage('/').percent, 1)
 
     }
 
