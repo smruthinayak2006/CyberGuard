@@ -1,20 +1,16 @@
-# Python cache
+# Virtual Environment
+venv/
+
+# Python Cache
 __pycache__/
 *.pyc
 
-
-# Virtual environment
-venv/
-
-
 # Logs
-logs/
-*.log
-
-
-# Environment secrets
-.env
-
+logs/*.log
 
 # IDE
 .vscode/
+
+# OS Files
+.DS_Store
+Thumbs.db
