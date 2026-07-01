@@ -11,7 +11,8 @@ from analyzers.risk_engine import calculate_risk
 
 from database.db_manager import (
     initialize_database,
-    save_file_results
+    save_file_results,
+    save_findings
 )
 
 initialize_database()
@@ -91,9 +92,15 @@ def start_cyberguard():
 
     )
 
+
+    save_findings(
+        risk["findings"]
+    )
+
     display_section("Overall Risk Assessment")
 
-    print(f"Risk Score : {risk['score']} / 100")
+    print(f"Raw Score        : {risk['raw_score']}")
+    print(f"Normalized Score : {risk['score']} / 100")
     print(f"Risk Level : {risk['level']}")
     print(f"Total Findings : {risk['finding_count']}")
 
@@ -103,7 +110,21 @@ def start_cyberguard():
 
         for finding in risk["findings"]:
 
-            print(f"- {finding}")
+            print("-" * 60)
+
+            print(f"ID              : {finding.finding_id}")
+
+            print(f"Title           : {finding.title}")
+
+            print(f"Severity        : {finding.severity}")
+
+            print(f"Category        : {finding.category}")
+
+            print(f"Raw Score       : {finding.raw_score}")
+
+            print(f"Module          : {finding.module}")
+
+            print(f"Recommendation  : {finding.recommendation}")
 
     else:
 

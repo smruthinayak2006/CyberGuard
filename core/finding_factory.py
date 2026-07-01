@@ -3,7 +3,7 @@ from models.finding import Finding
 
 class FindingFactory:
 
-    counter = 1
+    _counter = 1
 
     @classmethod
     def create(
@@ -19,13 +19,13 @@ class FindingFactory:
 
         finding = Finding(
 
-            id=f"CG-{cls.counter:04}",
+            finding_id=f"CG-{cls._counter:04}",
 
             title=title,
 
             category=category,
 
-            severity=severity,
+            severity=severity.upper(),
 
             raw_score=raw_score,
 
@@ -37,6 +37,6 @@ class FindingFactory:
 
         )
 
-        cls.counter += 1
+        cls._counter += 1
 
         return finding

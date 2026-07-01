@@ -1,77 +1,44 @@
-"""
-CyberGuard Risk Scoring Engine
-------------------------------
-Calculates an overall endpoint risk score based on
-security findings collected from different modules.
-"""
+from core.finding_factory import FindingFactory
 
 
 def calculate_risk(system_info, security_info, processes, file_results):
 
-    score = 0
     findings = []
 
     # --------------------------------------------------
-    # Firewall Checks
-    # --------------------------------------------------
-
-    firewall_profiles = security_info.get("Firewall Status", [])
-
-    for profile in firewall_profiles:
-
-        if not profile.get("Enabled", False):
-
-            score += 30
-
-            findings.append(
-                f"Firewall disabled ({profile.get('Name', 'Unknown')})"
-            )
-
-    # --------------------------------------------------
-    # Guest Account
-    # --------------------------------------------------
-
-    users = security_info.get("Local Users", [])
-
-    for user in users:
-
-        if (
-            user.get("Name") == "Guest"
-            and user.get("Enabled") is True
-        ):
-
-            score += 20
-
-            findings.append(
-                "Guest account is enabled."
-            )
-
-    # --------------------------------------------------
-    # Windows Updates
-    # --------------------------------------------------
-
-    updates = security_info.get("Installed Updates", [])
-
-    if len(updates) < 3:
-
-        score += 15
-
-        findings.append(
-            "Very few Windows updates detected."
-        )
-
-    # --------------------------------------------------
-    # File Integrity
+    # Modified Files
     # --------------------------------------------------
 
     for file in file_results:
 
         if file["status"] == "MODIFIED":
 
-            score += 15
-
             findings.append(
-                f"Modified file: {file['file']}"
+
+                FindingFactory.create(
+
+                    title="Modified File",
+
+                    category="File Integrity",
+
+                    severity="Medium",
+
+                    raw_score=15,
+
+                    description=(
+                        f"{file['file']} has changed "
+                        "since the previous scan."
+                    ),
+
+                    recommendation=(
+                        "Verify that the file modification "
+                        "was authorized."
+                    ),
+
+                    module="File Integrity"
+
+                )
+
             )
 
     # --------------------------------------------------
@@ -82,104 +49,98 @@ def calculate_risk(system_info, security_info, processes, file_results):
 
         if process["name"] == "Unknown":
 
-            score += 10
-
             findings.append(
-                f"Unknown process (PID {process['pid']})"
+
+                FindingFactory.create(
+
+                    title="Unknown Process",
+
+                    category="Process Analysis",
+
+                    severity="High",
+
+                    raw_score=20,
+
+                    description=(
+                        f"Unknown process detected "
+                        f"(PID {process['pid']})."
+                    ),
+
+                    recommendation=(
+                        "Investigate the process "
+                        "before allowing execution."
+                    ),
+
+                    module="Process Analyzer"
+
+                )
+
             )
 
     # --------------------------------------------------
-    # Missing Executable Path
+    # Firewall Check
     # --------------------------------------------------
 
-    for process in processes:
+    firewall_profiles = security_info.get(
+        "Firewall Status",
+        []
+    )
 
-        if process["path"] in ("", "Unavailable"):
+    for profile in firewall_profiles:
 
-            score += 5
+        if not profile.get("Enabled", True):
 
             findings.append(
-                f"Executable path unavailable (PID {process['pid']})"
+
+                FindingFactory.create(
+
+                    title="Firewall Disabled",
+
+                    category="Windows Security",
+
+                    severity="Critical",
+
+                    raw_score=40,
+
+                    description=(
+                        f"{profile['Name']} firewall "
+                        "profile is disabled."
+                    ),
+
+                    recommendation=(
+                        "Enable the firewall "
+                        "immediately."
+                    ),
+
+                    module="Windows Audit"
+
+                )
+
             )
 
     # --------------------------------------------------
-    # High Memory Processes
+    # Score Calculation
     # --------------------------------------------------
 
-    for process in processes:
+    raw_score = sum(
 
-        if process["memory"] > 10:
+        finding.raw_score
 
-            score += 10
+        for finding in findings
 
-            findings.append(
-                f"High memory usage process: {process['name']}"
-            )
+    )
 
-    # --------------------------------------------------
-    # Suspicious Execution Locations
-    # --------------------------------------------------
+    normalized_score = min(raw_score, 100)
 
-    suspicious_locations = [
-
-        "downloads",
-        "temp",
-        "appdata",
-        "roaming"
-
-    ]
-
-    for process in processes:
-
-        path = process["path"].lower()
-
-        if any(folder in path for folder in suspicious_locations):
-
-            score += 20
-
-            findings.append(
-                f"Suspicious execution path: {process['name']}"
-            )
-
-    # --------------------------------------------------
-    # System Resource Checks
-    # --------------------------------------------------
-
-    if system_info["cpu_usage"] > 90:
-
-        score += 10
-
-        findings.append(
-            "High CPU usage detected."
-        )
-
-    if system_info["ram_usage"] > 85:
-
-        score += 10
-
-        findings.append(
-            "High RAM usage detected."
-        )
-
-    # --------------------------------------------------
-    # Cap Score
-    # --------------------------------------------------
-
-    score = min(score, 100)
-
-    # --------------------------------------------------
-    # Risk Level
-    # --------------------------------------------------
-
-    if score <= 20:
+    if normalized_score <= 20:
 
         level = "LOW"
 
-    elif score <= 40:
+    elif normalized_score <= 40:
 
         level = "MEDIUM"
 
-    elif score <= 70:
+    elif normalized_score <= 70:
 
         level = "HIGH"
 
@@ -189,7 +150,9 @@ def calculate_risk(system_info, security_info, processes, file_results):
 
     return {
 
-        "score": score,
+        "raw_score": raw_score,
+
+        "score": normalized_score,
 
         "level": level,
 
