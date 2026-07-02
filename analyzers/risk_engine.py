@@ -6,7 +6,7 @@ def calculate_risk(system_info, security_info, processes, file_results):
     findings = []
 
     # --------------------------------------------------
-    # Modified Files
+    # File Integrity
     # --------------------------------------------------
 
     for file in file_results:
@@ -25,15 +25,9 @@ def calculate_risk(system_info, security_info, processes, file_results):
 
                     raw_score=15,
 
-                    description=(
-                        f"{file['file']} has changed "
-                        "since the previous scan."
-                    ),
+                    description=f"{file['file']} has changed since the previous scan.",
 
-                    recommendation=(
-                        "Verify that the file modification "
-                        "was authorized."
-                    ),
+                    recommendation="Verify the file modification.",
 
                     module="File Integrity"
 
@@ -42,7 +36,7 @@ def calculate_risk(system_info, security_info, processes, file_results):
             )
 
     # --------------------------------------------------
-    # Unknown Processes
+    # Unknown Process
     # --------------------------------------------------
 
     for process in processes:
@@ -61,15 +55,9 @@ def calculate_risk(system_info, security_info, processes, file_results):
 
                     raw_score=20,
 
-                    description=(
-                        f"Unknown process detected "
-                        f"(PID {process['pid']})."
-                    ),
+                    description=f"Unknown process detected (PID {process['pid']}).",
 
-                    recommendation=(
-                        "Investigate the process "
-                        "before allowing execution."
-                    ),
+                    recommendation="Investigate the process.",
 
                     module="Process Analyzer"
 
@@ -78,7 +66,7 @@ def calculate_risk(system_info, security_info, processes, file_results):
             )
 
     # --------------------------------------------------
-    # Firewall Check
+    # Firewall
     # --------------------------------------------------
 
     firewall_profiles = security_info.get(
@@ -88,7 +76,7 @@ def calculate_risk(system_info, security_info, processes, file_results):
 
     for profile in firewall_profiles:
 
-        if not profile.get("Enabled", True):
+        if not profile["Enabled"]:
 
             findings.append(
 
@@ -102,15 +90,9 @@ def calculate_risk(system_info, security_info, processes, file_results):
 
                     raw_score=40,
 
-                    description=(
-                        f"{profile['Name']} firewall "
-                        "profile is disabled."
-                    ),
+                    description=f"{profile['Name']} firewall profile is disabled.",
 
-                    recommendation=(
-                        "Enable the firewall "
-                        "immediately."
-                    ),
+                    recommendation="Enable Windows Firewall immediately.",
 
                     module="Windows Audit"
 
@@ -119,40 +101,60 @@ def calculate_risk(system_info, security_info, processes, file_results):
             )
 
     # --------------------------------------------------
-    # Score Calculation
+    # Risk Calculation
     # --------------------------------------------------
 
-    raw_score = sum(
-
-        finding.raw_score
-
-        for finding in findings
-
-    )
+    raw_score = sum(f.raw_score for f in findings)
 
     normalized_score = min(raw_score, 100)
 
-    if normalized_score <= 20:
+    severity_order = {
 
-        level = "LOW"
+        "LOW": 1,
 
-    elif normalized_score <= 40:
+        "MEDIUM": 2,
 
-        level = "MEDIUM"
+        "HIGH": 3,
 
-    elif normalized_score <= 70:
+        "CRITICAL": 4
+
+    }
+
+    highest = "LOW"
+
+    for finding in findings:
+
+        if severity_order[finding.severity] > severity_order[highest]:
+
+            highest = finding.severity
+
+    # --------------------------------------------------
+    # Enterprise Risk Decision
+    # --------------------------------------------------
+
+    if highest == "CRITICAL":
+
+        level = "CRITICAL"
+
+    elif highest == "HIGH":
 
         level = "HIGH"
 
+    elif normalized_score >= 40:
+
+        level = "MEDIUM"
+
     else:
 
-        level = "CRITICAL"
+        level = "LOW"
 
     return {
 
         "raw_score": raw_score,
 
         "score": normalized_score,
+
+        "highest_severity": highest,
 
         "level": level,
 

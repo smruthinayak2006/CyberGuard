@@ -99,10 +99,11 @@ def start_cyberguard():
 
     display_section("Overall Risk Assessment")
 
-    print(f"Raw Score        : {risk['raw_score']}")
-    print(f"Normalized Score : {risk['score']} / 100")
-    print(f"Risk Level : {risk['level']}")
-    print(f"Total Findings : {risk['finding_count']}")
+    print(f"Raw Score         : {risk['raw_score']}")
+    print(f"Normalized Score  : {risk['score']} / 100")
+    print(f"Highest Severity  : {risk['highest_severity']}")
+    print(f"Overall Risk      : {risk['level']}")
+    print(f"Total Findings    : {risk['finding_count']}")
 
     print("\nSecurity Findings")
 
