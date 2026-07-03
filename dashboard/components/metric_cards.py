@@ -1,7 +1,7 @@
 import streamlit as st
 
 
-def render_metric_cards():
+def render_metric_cards(risk, findings, endpoint):
 
     col1, col2, col3, col4 = st.columns(4)
 
@@ -9,26 +9,26 @@ def render_metric_cards():
 
         st.metric(
             "Overall Risk",
-            "HIGH"
+            risk
         )
 
     with col2:
 
         st.metric(
             "Findings",
-            "1"
+            findings
         )
 
     with col3:
 
         st.metric(
             "Endpoint",
-            "Smriti"
+            endpoint
         )
 
     with col4:
 
         st.metric(
-            "Last Scan",
-            "Today"
+            "Status",
+            "ONLINE"
         )
