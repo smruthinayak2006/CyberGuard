@@ -13,29 +13,17 @@ def initialize_database():
     conn = get_connection()
     cursor = conn.cursor()
 
-    # ----------------------------
-    # File Integrity Table
-    # ----------------------------
-
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS file_integrity(
 
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-
             file_path TEXT,
-
             sha256 TEXT,
-
             status TEXT,
-
             scan_time TEXT
 
         )
     """)
-
-    # ----------------------------
-    # Findings Table
-    # ----------------------------
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS findings(
@@ -43,39 +31,52 @@ def initialize_database():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
 
             finding_id TEXT,
-
             title TEXT,
-
             category TEXT,
-
             severity TEXT,
-
             raw_score INTEGER,
-
             description TEXT,
-
             recommendation TEXT,
-
             module TEXT,
-
             status TEXT,
-
             timestamp TEXT
 
         )
     """)
 
-    conn.commit()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS scan_history(
 
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+            hostname TEXT,
+            ip_address TEXT,
+            operating_system TEXT,
+
+            cpu_usage REAL,
+            ram_usage REAL,
+            disk_usage REAL,
+
+            raw_score INTEGER,
+            normalized_score INTEGER,
+
+            highest_severity TEXT,
+            risk_level TEXT,
+
+            finding_count INTEGER,
+
+            scan_time TEXT
+
+        )
+    """)
+
+    conn.commit()
     conn.close()
 
-
-# -------------------------------------------------
 
 def save_file_results(file_results):
 
     conn = get_connection()
-
     cursor = conn.cursor()
 
     scan_time = datetime.now().strftime(
@@ -89,11 +90,8 @@ def save_file_results(file_results):
             INSERT INTO file_integrity(
 
                 file_path,
-
                 sha256,
-
                 status,
-
                 scan_time
 
             )
@@ -103,26 +101,19 @@ def save_file_results(file_results):
         """, (
 
             file["file"],
-
             file["sha256"],
-
             file["status"],
-
             scan_time
 
         ))
 
     conn.commit()
-
     conn.close()
 
-
-# -------------------------------------------------
 
 def save_findings(findings):
 
     conn = get_connection()
-
     cursor = conn.cursor()
 
     for finding in findings:
@@ -132,23 +123,14 @@ def save_findings(findings):
             INSERT INTO findings(
 
                 finding_id,
-
                 title,
-
                 category,
-
                 severity,
-
                 raw_score,
-
                 description,
-
                 recommendation,
-
                 module,
-
                 status,
-
                 timestamp
 
             )
@@ -158,61 +140,106 @@ def save_findings(findings):
         """, (
 
             finding.finding_id,
-
             finding.title,
-
             finding.category,
-
             finding.severity,
-
             finding.raw_score,
-
             finding.description,
-
             finding.recommendation,
-
             finding.module,
-
             finding.status,
-
             finding.timestamp
 
         ))
 
     conn.commit()
-
     conn.close()
 
 
-# -------------------------------------------------
-
-def get_file_history():
+def save_scan(system_info, risk):
 
     conn = get_connection()
+    cursor = conn.cursor()
 
+    cursor.execute("""
+
+        INSERT INTO scan_history(
+
+            hostname,
+            ip_address,
+            operating_system,
+
+            cpu_usage,
+            ram_usage,
+            disk_usage,
+
+            raw_score,
+            normalized_score,
+
+            highest_severity,
+            risk_level,
+
+            finding_count,
+
+            scan_time
+
+        )
+
+        VALUES(?,?,?,?,?,?,?,?,?,?,?,?)
+
+    """, (
+
+        system_info["hostname"],
+        system_info["ip_address"],
+        system_info["operating_system"],
+
+        system_info["cpu_usage"],
+        system_info["ram_usage"],
+        system_info["disk_usage"],
+
+        risk["raw_score"],
+        risk["score"],
+
+        risk["highest_severity"],
+        risk["level"],
+
+        risk["finding_count"],
+
+        datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    ))
+
+    conn.commit()
+    conn.close()
+
+
+def get_latest_scan():
+
+    conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute("""
 
         SELECT *
 
-        FROM file_integrity
+        FROM scan_history
+
+        ORDER BY id DESC
+
+        LIMIT 1
 
     """)
 
-    data = cursor.fetchall()
+    row = cursor.fetchone()
 
     conn.close()
 
-    return data
+    return row
 
-
-# -------------------------------------------------
 
 def get_findings():
 
     conn = get_connection()
-
     cursor = conn.cursor()
 
     cursor.execute("""
