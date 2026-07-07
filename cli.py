@@ -2,18 +2,10 @@ from core.logger import setup_logger
 from core.config import load_config
 from core.display import display_section, display_dictionary
 
-from collectors.system_collector import collect_system_info
-from collectors.windows_audit import collect_windows_security
+from database.db_manager import initialize_database
 
-from analyzers.process_analyzer import collect_processes
-from analyzers.file_integrity import scan_directory
-from analyzers.risk_engine import calculate_risk
+from core.scan_runner import run_scan
 
-from database.db_manager import (
-    initialize_database,
-    save_file_results,
-    save_findings
-)
 
 initialize_database()
 
@@ -26,36 +18,50 @@ def start_cyberguard():
 
     logger.info("CyberGuard application started")
 
-    display_section("CyberGuard Endpoint Security Assessment System")
+    display_section(
+        "CyberGuard Endpoint Security Assessment System"
+    )
 
     print("Version:", config["version"])
     print("Scan Mode:", config["scan_mode"])
 
-    # --------------------------------------------------
+    # ----------------------------------------
+
+    results = run_scan()
+
+    system_info = results["system"]
+
+    security_info = results["security"]
+
+    processes = results["processes"]
+
+    files = results["files"]
+
+    risk = results["risk"]
+
+    # ----------------------------------------
 
     display_section("Endpoint Information")
 
-    system_info = collect_system_info()
-
     display_dictionary(system_info)
 
-    logger.info("Endpoint information collected successfully")
+    logger.info(
+        "Endpoint information collected successfully"
+    )
 
-    # --------------------------------------------------
+    # ----------------------------------------
 
     display_section("Windows Security Audit")
 
-    security_info = collect_windows_security()
-
     display_dictionary(security_info)
 
-    logger.info("Windows security audit completed")
+    logger.info(
+        "Windows security audit completed"
+    )
 
-    # --------------------------------------------------
+    # ----------------------------------------
 
     display_section("Running Processes")
-
-    processes = collect_processes()
 
     for process in processes[:15]:
 
@@ -66,13 +72,9 @@ def start_cyberguard():
         print(f"Path: {process['path']}")
         print("-" * 50)
 
-    # --------------------------------------------------
+    # ----------------------------------------
 
     display_section("File Integrity Monitoring")
-
-    files = scan_directory("test_files")
-
-    save_file_results(files)
 
     for file in files:
 
@@ -81,21 +83,7 @@ def start_cyberguard():
         print(f"Status : {file['status']}")
         print("-" * 60)
 
-    # --------------------------------------------------
-
-    risk = calculate_risk(
-
-        system_info,
-        security_info,
-        processes,
-        files
-
-    )
-
-
-    save_findings(
-        risk["findings"]
-    )
+    # ----------------------------------------
 
     display_section("Overall Risk Assessment")
 
@@ -112,19 +100,12 @@ def start_cyberguard():
         for finding in risk["findings"]:
 
             print("-" * 60)
-
             print(f"ID              : {finding.finding_id}")
-
             print(f"Title           : {finding.title}")
-
             print(f"Severity        : {finding.severity}")
-
             print(f"Category        : {finding.category}")
-
             print(f"Raw Score       : {finding.raw_score}")
-
             print(f"Module          : {finding.module}")
-
             print(f"Recommendation  : {finding.recommendation}")
 
     else:
