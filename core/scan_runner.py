@@ -7,21 +7,42 @@ from analyzers.risk_engine import calculate_risk
 
 from database.db_manager import (
     save_file_results,
-    save_findings
+    save_findings,
+    save_scan
 )
 
 
 def run_scan():
 
+    # ----------------------------------------
+    # Collect Endpoint Information
+    # ----------------------------------------
+
     system_info = collect_system_info()
+
+    # ----------------------------------------
+    # Windows Security Audit
+    # ----------------------------------------
 
     security_info = collect_windows_security()
 
+    # ----------------------------------------
+    # Running Processes
+    # ----------------------------------------
+
     processes = collect_processes()
+
+    # ----------------------------------------
+    # File Integrity Monitoring
+    # ----------------------------------------
 
     files = scan_directory("test_files")
 
     save_file_results(files)
+
+    # ----------------------------------------
+    # Risk Analysis
+    # ----------------------------------------
 
     risk = calculate_risk(
 
@@ -35,11 +56,31 @@ def run_scan():
 
     )
 
+    # ----------------------------------------
+    # Store Findings
+    # ----------------------------------------
+
     save_findings(
 
         risk["findings"]
 
     )
+
+    # ----------------------------------------
+    # Store Scan History
+    # ----------------------------------------
+
+    save_scan(
+
+        system_info,
+
+        risk
+
+    )
+
+    # ----------------------------------------
+    # Return Complete Scan
+    # ----------------------------------------
 
     return {
 
