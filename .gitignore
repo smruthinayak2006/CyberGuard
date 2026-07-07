@@ -8,9 +8,12 @@ __pycache__/
 # Logs
 logs/*.log
 
+
 # IDE
 .vscode/
 
 # OS Files
 .DS_Store
 Thumbs.db
+
+database/cyberguard.db
