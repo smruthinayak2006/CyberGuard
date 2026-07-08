@@ -59,7 +59,7 @@ def run_scan():
     )
 
     # ----------------------------------------
-    # Save Results
+    # Store Findings
     # ----------------------------------------
 
     save_findings(
@@ -67,6 +67,10 @@ def run_scan():
         risk["findings"]
 
     )
+
+    # ----------------------------------------
+    # Store Scan History
+    # ----------------------------------------
 
     save_scan(
 
@@ -98,7 +102,9 @@ def run_scan():
     # Generate PDF Report
     # ----------------------------------------
 
-    generate_report(scan)
+    report_path = generate_report(scan)
+
+    scan["report_path"] = report_path
 
     # ----------------------------------------
 

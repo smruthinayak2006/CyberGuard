@@ -17,3 +17,5 @@ logs/*.log
 Thumbs.db
 
 database/cyberguard.db
+
+reports/*.pdf

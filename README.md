@@ -205,7 +205,7 @@ Planned:
 
 ## Author
 
-**Smriti Prajwal**
+**Smriti**
 
 B.Tech Computer Science Engineering
 

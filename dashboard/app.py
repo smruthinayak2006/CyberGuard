@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import streamlit as st
 
 from dashboard.components.header import render_header
@@ -13,6 +15,23 @@ from dashboard.dashboard_db import (
 )
 
 
+REPORTS_DIR = Path("reports")
+
+
+def get_latest_report():
+
+    reports = sorted(
+        REPORTS_DIR.glob("CyberGuard_Report_*.pdf"),
+        key=lambda file: file.stat().st_mtime,
+        reverse=True
+    )
+
+    if reports:
+        return reports[0]
+
+    return None
+
+
 def run_dashboard():
 
     st.set_page_config(
@@ -21,36 +40,50 @@ def run_dashboard():
         layout="wide"
     )
 
-    st.sidebar.title("🛡 CyberGuard")
+    render_header()
 
-    st.sidebar.success("System Online")
+    # ----------------------------------------------------
+    # Action Buttons
+    # ----------------------------------------------------
 
-    st.sidebar.markdown("---")
+    left, right = st.columns([3, 1])
 
-    st.sidebar.write("### Assessment")
+    with left:
 
-    if st.sidebar.button(
-        "▶ Start Assessment",
-        use_container_width=True
-    ):
-
-        with st.spinner(
-            "Running endpoint assessment..."
+        if st.button(
+            "▶ Start Assessment",
+            use_container_width=True
         ):
 
-            run_scan()
+            with st.spinner(
+                "Running endpoint assessment..."
+            ):
 
-        st.success(
-            "Assessment completed successfully."
-        )
+                run_scan()
 
-        st.rerun()
+            st.success(
+                "Assessment completed successfully."
+            )
 
-    st.sidebar.markdown("---")
+            st.rerun()
 
-    st.sidebar.caption("Version 1.0")
+    with right:
 
-    render_header()
+        latest_report = get_latest_report()
+
+        if latest_report:
+
+            with open(latest_report, "rb") as pdf:
+
+                st.download_button(
+                    "📄 Download Report",
+                    pdf,
+                    file_name=latest_report.name,
+                    mime="application/pdf",
+                    use_container_width=True
+                )
+
+    # ----------------------------------------------------
 
     scan = get_latest_scan()
 
@@ -69,9 +102,13 @@ def run_dashboard():
     st.divider()
 
     st.caption(
-        f"Last Scan: {scan['scan_time']}"
+        f"Last Scan : {scan['scan_time']}"
     )
 
     st.caption(
-        "CyberGuard • Endpoint Security Assessment Platform"
+        "CyberGuard v1.0 | Internship Project"
     )
+
+
+if __name__ == "__main__":
+    run_dashboard()

@@ -1,3 +1,6 @@
+from pathlib import Path
+from datetime import datetime
+
 from reportlab.platypus import (
     SimpleDocTemplate,
     Paragraph,
@@ -10,12 +13,25 @@ from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
 
 
+REPORTS_DIR = Path("reports")
+
+
 def generate_report(scan):
+
+    REPORTS_DIR.mkdir(exist_ok=True)
+
+    timestamp = datetime.now().strftime(
+        "%Y-%m-%d_%H-%M-%S"
+    )
+
+    report_path = REPORTS_DIR / (
+        f"CyberGuard_Report_{timestamp}.pdf"
+    )
 
     styles = getSampleStyleSheet()
 
     document = SimpleDocTemplate(
-        "reports/CyberGuard_Report.pdf"
+        str(report_path)
     )
 
     elements = []
@@ -90,8 +106,6 @@ def generate_report(scan):
             ("GRID", (0, 0), (-1, -1), 1, colors.black),
 
             ("BACKGROUND", (0, 0), (0, -1), colors.lightgrey),
-
-            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
 
             ("BOTTOMPADDING", (0, 0), (-1, -1), 8)
 
@@ -179,7 +193,7 @@ def generate_report(scan):
 
     if risk["findings"]:
 
-        findings = [[
+        rows = [[
 
             "ID",
 
@@ -193,7 +207,7 @@ def generate_report(scan):
 
         for finding in risk["findings"]:
 
-            findings.append([
+            rows.append([
 
                 finding.finding_id,
 
@@ -205,7 +219,7 @@ def generate_report(scan):
 
             ])
 
-        findings_table = Table(findings)
+        findings_table = Table(rows)
 
         findings_table.setStyle(
 
@@ -214,8 +228,6 @@ def generate_report(scan):
                 ("GRID", (0, 0), (-1, -1), 1, colors.black),
 
                 ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
-
-                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
 
                 ("BOTTOMPADDING", (0, 0), (-1, -1), 8)
 
@@ -285,6 +297,6 @@ def generate_report(scan):
 
         )
 
-    # ------------------------------------------------
-
     document.build(elements)
+
+    return str(report_path)
