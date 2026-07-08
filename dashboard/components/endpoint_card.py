@@ -1,7 +1,7 @@
 import streamlit as st
 
 
-def render_endpoint():
+def render_endpoint(scan):
 
     st.subheader("🖥 Endpoint Overview")
 
@@ -9,28 +9,34 @@ def render_endpoint():
 
     with col1:
 
-        st.write("**Hostname**")
+        st.markdown("#### System Information")
 
-        st.write("Smriti")
+        st.write(f"**Hostname:** {scan['hostname']}")
 
-        st.write("**Operating System**")
+        st.write(f"**Operating System:** {scan['operating_system']}")
 
-        st.write("Windows")
+        st.write(f"**IP Address:** {scan['ip_address']}")
 
-        st.write("**IP Address**")
-
-        st.write("10.227.249.223")
+        st.write(f"**Last Scan:** {scan['scan_time']}")
 
     with col2:
 
+        st.markdown("#### Resource Usage")
+
         st.write("**CPU Usage**")
 
-        st.write("22.9 %")
+        st.progress(min(int(scan["cpu_usage"]), 100))
+
+        st.caption(f"{scan['cpu_usage']} %")
 
         st.write("**RAM Usage**")
 
-        st.write("78.1 %")
+        st.progress(min(int(scan["ram_usage"]), 100))
+
+        st.caption(f"{scan['ram_usage']} %")
 
         st.write("**Disk Usage**")
 
-        st.write("17.3 %")
+        st.progress(min(int(scan["disk_usage"]), 100))
+
+        st.caption(f"{scan['disk_usage']} %")

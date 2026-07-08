@@ -2,33 +2,69 @@ import pandas as pd
 import streamlit as st
 
 
-def render_findings():
+def render_findings(findings):
 
-    st.subheader("🚨 Recent Findings")
+    st.subheader("🚨 Recent Security Findings")
 
-    df = pd.DataFrame(
+    if not findings:
 
-        [
+        st.success("No findings available.")
 
-            {
+        return
 
-                "Finding ID": "CG-0001",
+    data = []
 
-                "Severity": "HIGH",
+    for finding in findings:
 
-                "Module": "Process Analyzer",
+        data.append({
 
-                "Status": "OPEN"
+            "Finding ID": finding[0],
 
-            }
+            "Title": finding[1],
 
-        ]
+            "Severity": finding[2],
+
+            "Module": finding[3],
+
+            "Status": finding[4],
+
+            "Timestamp": finding[5]
+
+        })
+
+    df = pd.DataFrame(data)
+
+    def highlight_severity(value):
+
+        if value == "CRITICAL":
+
+            return "background-color:#8B0000;color:white;font-weight:bold;"
+
+        if value == "HIGH":
+
+            return "background-color:#ff4b4b;color:white;font-weight:bold;"
+
+        if value == "MEDIUM":
+
+            return "background-color:#ffb000;color:black;font-weight:bold;"
+
+        if value == "LOW":
+
+            return "background-color:#00b050;color:white;font-weight:bold;"
+
+        return ""
+
+    styled = df.style.map(
+
+        highlight_severity,
+
+        subset=["Severity"]
 
     )
 
     st.dataframe(
 
-        df,
+        styled,
 
         use_container_width=True,
 

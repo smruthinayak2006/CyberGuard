@@ -1,4 +1,5 @@
 import streamlit as st
+
 from dashboard.components.header import render_header
 from dashboard.components.metric_cards import render_metric_cards
 from dashboard.components.endpoint_card import render_endpoint
@@ -7,8 +8,8 @@ from dashboard.components.findings_table import render_findings
 from core.scan_runner import run_scan
 
 from dashboard.dashboard_db import (
-    get_latest_findings,
-    get_finding_count
+    get_latest_scan,
+    get_latest_findings
 )
 
 
@@ -20,9 +21,15 @@ def run_dashboard():
         layout="wide"
     )
 
-    render_header()
+    st.sidebar.title("🛡 CyberGuard")
 
-    if st.button(
+    st.sidebar.success("System Online")
+
+    st.sidebar.markdown("---")
+
+    st.sidebar.write("### Assessment")
+
+    if st.sidebar.button(
         "▶ Start Assessment",
         use_container_width=True
     ):
@@ -39,38 +46,32 @@ def run_dashboard():
 
         st.rerun()
 
+    st.sidebar.markdown("---")
+
+    st.sidebar.caption("Version 1.0")
+
+    render_header()
+
+    scan = get_latest_scan()
+
     findings = get_latest_findings()
 
-    count = get_finding_count()
+    render_metric_cards(scan)
 
-    risk = "LOW"
+    st.divider()
 
-    for finding in findings:
+    render_endpoint(scan)
 
-        if finding[2] == "CRITICAL":
+    st.divider()
 
-            risk = "CRITICAL"
+    render_findings(findings)
 
-            break
+    st.divider()
 
-        elif finding[2] == "HIGH":
-
-            risk = "HIGH"
-
-    render_metric_cards(
-
-        risk,
-
-        count,
-
-        "Smriti"
-
+    st.caption(
+        f"Last Scan: {scan['scan_time']}"
     )
 
-    st.divider()
-
-    render_endpoint()
-
-    st.divider()
-
-    render_findings()
+    st.caption(
+        "CyberGuard • Endpoint Security Assessment Platform"
+    )
