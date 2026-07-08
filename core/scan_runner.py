@@ -11,6 +11,8 @@ from database.db_manager import (
     save_scan
 )
 
+from reports.report_generator import generate_report
+
 
 def run_scan():
 
@@ -57,7 +59,7 @@ def run_scan():
     )
 
     # ----------------------------------------
-    # Store Findings
+    # Save Results
     # ----------------------------------------
 
     save_findings(
@@ -65,10 +67,6 @@ def run_scan():
         risk["findings"]
 
     )
-
-    # ----------------------------------------
-    # Store Scan History
-    # ----------------------------------------
 
     save_scan(
 
@@ -79,10 +77,10 @@ def run_scan():
     )
 
     # ----------------------------------------
-    # Return Complete Scan
+    # Complete Scan Object
     # ----------------------------------------
 
-    return {
+    scan = {
 
         "system": system_info,
 
@@ -95,3 +93,13 @@ def run_scan():
         "risk": risk
 
     }
+
+    # ----------------------------------------
+    # Generate PDF Report
+    # ----------------------------------------
+
+    generate_report(scan)
+
+    # ----------------------------------------
+
+    return scan
