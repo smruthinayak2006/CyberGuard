@@ -205,7 +205,7 @@ Planned:
 
 ## Author
 
-**Smriti**
+**Smruthi Nayak**
 
 B.Tech Computer Science Engineering
 
