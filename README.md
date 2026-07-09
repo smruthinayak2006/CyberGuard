@@ -1,134 +1,111 @@
-# 🛡 CyberGuard
+# 🛡️ CyberGuard
 
-A Python-based endpoint security assessment tool that collects system information, performs basic security checks, analyzes running processes, monitors file integrity, and presents the results through both a command-line interface and a Streamlit dashboard.
+## Automated Endpoint Security Assessment & Threat Monitoring System
 
-> **Project Type:** Internship Project  
-> **Status:** In Development
+CyberGuard is a Python-based endpoint security assessment tool developed as an internship project. It collects endpoint information, performs basic Windows security checks, analyzes running processes, monitors file integrity, calculates an overall security risk score, stores scan history in SQLite, and generates a downloadable PDF security report through a simple Streamlit dashboard.
 
 ---
 
 ## Features
 
-- Collects endpoint information
-- Performs Windows security audit
-- Analyzes running processes
-- Monitors file integrity using SHA-256 hashes
-- Calculates an overall security risk score
-- Stores findings in SQLite
-- Maintains scan history
-- Provides both CLI and Streamlit interfaces
+- Endpoint system information collection
+- Windows security audit
+- Running process analysis
+- File integrity monitoring using SHA-256 hashing
+- Security risk scoring engine
+- SQLite database for scan history and findings
+- Interactive Streamlit dashboard
+- PDF security report generation
+- Report download from dashboard
+- Command-line interface (CLI)
 
 ---
 
-## Technology Stack
+## Project Workflow
 
-| Component | Technology |
-|----------|------------|
-| Language | Python |
-| Dashboard | Streamlit |
-| Database | SQLite |
-| Platform | Windows |
-| Version Control | Git & GitHub |
+```
+Start Assessment
+        │
+        ▼
+Collect Endpoint Information
+        │
+        ▼
+Windows Security Audit
+        │
+        ▼
+Running Process Analysis
+        │
+        ▼
+File Integrity Monitoring
+        │
+        ▼
+Risk Engine
+        │
+        ▼
+Store Results in SQLite
+        │
+        ▼
+Generate Security Report
+        │
+        ▼
+Dashboard & PDF Download
+```
 
 ---
 
 ## Project Structure
 
-```text
+```
 CyberGuard/
-│
+
 ├── analyzers/
 ├── collectors/
 ├── config/
 ├── core/
 ├── dashboard/
-│   └── components/
 ├── database/
 ├── docs/
+│   └── screenshots/
 ├── logs/
 ├── models/
 ├── reports/
 ├── scanners/
 ├── test_files/
-│
 ├── app.py
 ├── cli.py
 ├── README.md
-├── requirements.txt
-└── .gitignore
+└── requirements.txt
 ```
 
 ---
 
-## Modules
+## Technologies Used
 
-### Endpoint Information
-
-Collects:
-
-- Hostname
-- IP Address
-- Operating System
-- CPU Usage
-- RAM Usage
-- Disk Usage
-- Boot Time
-
-### Windows Security Audit
-
-Collects:
-
-- Firewall status
-- Local users
-- Installed Windows updates
-
-### Process Analysis
-
-Displays running processes and identifies unknown processes.
-
-### File Integrity Monitoring
-
-Calculates SHA-256 hashes for monitored files and detects modifications.
-
-### Risk Assessment
-
-Generates:
-
-- Risk Score
-- Risk Level
-- Highest Severity
-- Security Findings
+- Python
+- Streamlit
+- SQLite
+- ReportLab
+- psutil
 
 ---
 
-## Database
+# Installation
 
-CyberGuard uses SQLite.
-
-Current tables:
-
-- `file_integrity`
-- `findings`
-- `scan_history`
-
----
-
-## Running the Project
-
-### Clone the repository
+Clone the repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/smruthinayak2006/CyberGuard.git
+
 cd CyberGuard
 ```
 
-### Create a virtual environment
+Create virtual environment
 
 ```bash
 python -m venv venv
 ```
 
-### Activate the environment
+Activate environment
 
 Windows
 
@@ -136,7 +113,7 @@ Windows
 venv\Scripts\activate
 ```
 
-### Install dependencies
+Install dependencies
 
 ```bash
 pip install -r requirements.txt
@@ -144,7 +121,7 @@ pip install -r requirements.txt
 
 ---
 
-## Run the CLI
+# Run from Command Line
 
 ```bash
 python cli.py
@@ -152,7 +129,7 @@ python cli.py
 
 ---
 
-## Run the Dashboard
+# Launch Dashboard
 
 ```bash
 streamlit run app.py
@@ -160,57 +137,101 @@ streamlit run app.py
 
 ---
 
-## Screenshots
+# Dashboard Preview
 
-Screenshots are available in:
+## Home Dashboard
 
-```text
-docs/screenshots/
-```
-
-Current screenshots include:
-
-- Endpoint Information
-- Windows Security Audit
-- Process Analysis
-- Process Explorer
-- File Integrity Monitoring
-- File Change Detection
-- Dashboard
+![Dashboard](docs/screenshots/01_dashboard_home.png)
 
 ---
 
-## Current Progress
+## Running Assessment
 
-Implemented:
-
-- Endpoint information collection
-- Windows security audit
-- Process analysis
-- File integrity monitoring
-- Risk assessment engine
-- Findings management
-- SQLite database
-- Scan history
-- Streamlit dashboard
-
-Planned:
-
-- PDF report generation
-- Dashboard improvements
-- Additional security checks
-- Export functionality
+![Assessment](docs/screenshots/02_start_assessment.png)
 
 ---
 
-## Author
+## Dashboard After Scan
+
+![Dashboard Results](docs/screenshots/03_dashboard_results.png)
+
+---
+
+# CLI Scan
+
+## Endpoint Information
+
+![Endpoint](docs/screenshots/04_endpoint_information.png)
+
+---
+
+## Windows Security Audit
+
+![Windows Audit](docs/screenshots/05_windows_security_audit.png)
+
+---
+
+## Running Process Analysis
+
+![Process Analysis](docs/screenshots/06_process_analysis.png)
+
+---
+
+## Risk Assessment
+
+![Risk Assessment](docs/screenshots/07_security_findings.png)
+
+---
+
+# PDF Security Report
+
+Generated report
+
+![PDF Report](docs/screenshots/08_generated_pdf_report.png)
+
+Downloaded report
+
+![Download Report](docs/screenshots/10_report_download.png)
+
+---
+
+# Scan History
+
+The dashboard maintains previous scan findings and displays them in a table for review.
+
+![Dashboard Findings](docs/screenshots/09_dashboard_findings.png)
+
+---
+
+# Current Capabilities
+
+- Collect endpoint information
+- Monitor running processes
+- Perform Windows security checks
+- Detect monitored file changes
+- Calculate overall risk score
+- Store scan history
+- Store security findings
+- Generate PDF reports
+- Download reports from dashboard
+
+---
+
+# Future Improvements
+
+- Additional Windows security checks
+- Linux endpoint support
+- Scheduled assessments
+- JSON and CSV report export
+- Email notification support
+- Improved threat detection rules
+
+---
+
+# Author
 
 **Smruthi Nayak**
 
 B.Tech Computer Science Engineering
 
----
-
-## License
-
-This project is developed for educational and internship purposes.
+Internship Project
