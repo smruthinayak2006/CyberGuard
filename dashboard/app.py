@@ -5,6 +5,7 @@ import streamlit as st
 from dashboard.components.header import render_header
 from dashboard.components.metric_cards import render_metric_cards
 from dashboard.components.endpoint_card import render_endpoint
+from dashboard.components.analytics import render_analytics
 from dashboard.components.findings_table import render_findings
 
 from core.scan_runner import run_scan
@@ -97,6 +98,10 @@ def run_dashboard():
     st.divider()
 
     render_endpoint(scan)
+
+    st.divider()
+
+    render_analytics(history)
 
     st.divider()
 
