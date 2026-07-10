@@ -11,7 +11,8 @@ from core.scan_runner import run_scan
 
 from dashboard.dashboard_db import (
     get_latest_scan,
-    get_latest_findings
+    get_latest_findings,
+    get_scan_history
 )
 
 
@@ -89,6 +90,8 @@ def run_dashboard():
 
     findings = get_latest_findings()
 
+    history = get_scan_history()
+
     render_metric_cards(scan)
 
     st.divider()
@@ -97,7 +100,10 @@ def run_dashboard():
 
     st.divider()
 
-    render_findings(findings)
+    render_findings(
+        findings,
+        history
+    )
 
     st.divider()
 
@@ -111,4 +117,5 @@ def run_dashboard():
 
 
 if __name__ == "__main__":
+
     run_dashboard()
