@@ -29,7 +29,102 @@ def render_findings(findings, history):
 
         df = pd.DataFrame(data)
 
-        def highlight_severity(value):
+        # ------------------------------------------------------
+        # Explorer Filters
+        # ------------------------------------------------------
+
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+
+            search = st.text_input(
+                "🔍 Search",
+                placeholder="Finding title..."
+            )
+
+        with col2:
+
+            severity = st.selectbox(
+
+                "Severity",
+
+                [
+
+                    "ALL",
+
+                    "CRITICAL",
+
+                    "HIGH",
+
+                    "MEDIUM",
+
+                    "LOW"
+
+                ]
+
+            )
+
+        with col3:
+
+            modules = ["ALL"]
+
+            modules.extend(
+
+                sorted(df["Module"].unique())
+
+            )
+
+            module = st.selectbox(
+
+                "Module",
+
+                modules
+
+            )
+
+        # ------------------------------------------------------
+        # Apply Filters
+        # ------------------------------------------------------
+
+        if search:
+
+            df = df[
+
+                df["Title"]
+
+                .str.contains(
+
+                    search,
+
+                    case=False,
+
+                    na=False
+
+                )
+
+            ]
+
+        if severity != "ALL":
+
+            df = df[
+
+                df["Severity"] == severity
+
+            ]
+
+        if module != "ALL":
+
+            df = df[
+
+                df["Module"] == module
+
+            ]
+
+        # ------------------------------------------------------
+        # Styling
+        # ------------------------------------------------------
+
+        def highlight(value):
 
             if value == "CRITICAL":
                 return "background-color:#8B0000;color:white;font-weight:bold;"
@@ -47,7 +142,7 @@ def render_findings(findings, history):
 
         styled = df.style.map(
 
-            highlight_severity,
+            highlight,
 
             subset=["Severity"]
 
@@ -65,7 +160,11 @@ def render_findings(findings, history):
 
     else:
 
-        st.success("No findings available.")
+        st.success(
+
+            "No findings available."
+
+        )
 
     st.divider()
 
@@ -77,11 +176,11 @@ def render_findings(findings, history):
 
     if history:
 
-        history_data = []
+        rows = []
 
         for scan in history:
 
-            history_data.append({
+            rows.append({
 
                 "Scan Time": scan[0],
                 "Risk": scan[1],
@@ -90,7 +189,7 @@ def render_findings(findings, history):
 
             })
 
-        history_df = pd.DataFrame(history_data)
+        history_df = pd.DataFrame(rows)
 
         st.dataframe(
 
@@ -104,4 +203,8 @@ def render_findings(findings, history):
 
     else:
 
-        st.info("No previous scans available.")
+        st.info(
+
+            "No previous scans available."
+
+        )

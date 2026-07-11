@@ -3,9 +3,9 @@ import streamlit as st
 
 def render_header():
 
-    col1, col2 = st.columns([6, 1])
+    left, right = st.columns([5, 1.5])
 
-    with col1:
+    with left:
 
         st.title("🛡 CyberGuard Security Center")
 
@@ -13,8 +13,23 @@ def render_header():
             "Enterprise Endpoint Security Assessment Platform"
         )
 
-    with col2:
+    with right:
 
-        st.success("🟢 ONLINE")
+        st.markdown(
+            """
+            <div style="
+                background:#123d24;
+                color:#5cff8d;
+                padding:18px;
+                border-radius:10px;
+                text-align:center;
+                font-weight:700;
+                font-size:20px;
+            ">
+                🟢 ONLINE
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
     st.divider()

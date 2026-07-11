@@ -98,11 +98,18 @@ def get_latest_findings():
         SELECT
 
             finding_id,
+
             title,
+
             severity,
+
             module,
+
             status,
-            timestamp
+
+            timestamp,
+
+            recommendation
 
         FROM findings
 
