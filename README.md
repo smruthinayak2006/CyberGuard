@@ -296,6 +296,16 @@ This enables analysts to compare historical scans and monitor endpoint security 
 
 ---
 
+---
+
+# Endpoint Security Scorecard
+
+The Endpoint Security Scorecard provides a quick overview of the endpoint's overall security posture by evaluating firewall status, file integrity, running processes, Windows updates, and the calculated security score.
+
+![Endpoint Security Scorecard](docs/screenshots/17_endpoint_security_scorecard.png)
+
+---
+
 # Security Analytics
 
 CyberGuard provides visual analytics to simplify security assessment review.
