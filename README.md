@@ -503,6 +503,7 @@ The repository contains screenshots demonstrating the application's functionalit
 | 14_risk_score_trend.png | Risk Score Trend |
 | 15_findings_per_scan.png | Findings Per Scan |
 | 16_security_recommendations.png | Security Recommendations |
+| 17_endpoint_security_scorecard.png | Endpoint Security Scorecard |
 
 ---
 
