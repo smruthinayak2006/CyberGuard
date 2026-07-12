@@ -2,13 +2,6 @@ from pathlib import Path
 
 import streamlit as st
 
-from dashboard.components.header import render_header
-from dashboard.components.metric_cards import render_metric_cards
-from dashboard.components.endpoint_card import render_endpoint
-from dashboard.components.analytics import render_analytics
-from dashboard.components.findings_table import render_findings
-from dashboard.components.recommendations import render_recommendations
-
 from core.scan_runner import run_scan
 
 from dashboard.dashboard_db import (
@@ -16,6 +9,14 @@ from dashboard.dashboard_db import (
     get_latest_findings,
     get_scan_history
 )
+
+from dashboard.components.header import render_header
+from dashboard.components.metric_cards import render_metric_cards
+from dashboard.components.endpoint_card import render_endpoint
+from dashboard.components.analytics import render_analytics
+from dashboard.components.findings_table import render_findings
+from dashboard.components.recommendations import render_recommendations
+from dashboard.components.security_scorecard import render_security_scorecard
 
 
 REPORTS_DIR = Path("reports")
@@ -39,11 +40,19 @@ def run_dashboard():
 
     st.set_page_config(
         page_title="CyberGuard Security Center",
-        page_icon="🛡️",
+        page_icon="🛡",
         layout="wide"
     )
 
     render_header()
+
+    # ----------------------------------------------------
+    # Session State
+    # ----------------------------------------------------
+
+    if "latest_scan" not in st.session_state:
+
+        st.session_state.latest_scan = None
 
     # ----------------------------------------------------
     # Action Buttons
@@ -62,7 +71,7 @@ def run_dashboard():
                 "Running endpoint assessment..."
             ):
 
-                run_scan()
+                st.session_state.latest_scan = run_scan()
 
             st.success(
                 "Assessment completed successfully."
@@ -87,12 +96,34 @@ def run_dashboard():
                 )
 
     # ----------------------------------------------------
+    # Database Data
+    # ----------------------------------------------------
 
     scan = get_latest_scan()
 
     findings = get_latest_findings()
 
     history = get_scan_history()
+
+    # ----------------------------------------------------
+    # Scorecard
+    # ----------------------------------------------------
+
+    if st.session_state.latest_scan is not None:
+
+        render_security_scorecard(
+
+            st.session_state.latest_scan,
+
+            findings
+
+        )
+
+        st.divider()
+
+    # ----------------------------------------------------
+    # Dashboard
+    # ----------------------------------------------------
 
     render_metric_cards(scan)
 
@@ -107,22 +138,31 @@ def run_dashboard():
     st.divider()
 
     render_findings(
+
         findings,
+
         history
+
     )
 
     st.divider()
 
     render_recommendations(
+
         findings
+
     )
 
     st.caption(
+
         f"Last Scan : {scan['scan_time']}"
+
     )
 
     st.caption(
+
         "CyberGuard v1.0 | Internship Project"
+
     )
 
 
