@@ -537,7 +537,7 @@ GitHub:
 https://github.com/smruthinayak2006
 
 LinkedIn:
-https://www.linkedin.com/in/smruthi-nayak-51b31731a
+https://www.linkedin.com/in/smruthi-nayak
 
 ---
 

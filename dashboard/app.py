@@ -17,6 +17,7 @@ from dashboard.components.analytics import render_analytics
 from dashboard.components.findings_table import render_findings
 from dashboard.components.recommendations import render_recommendations
 from dashboard.components.security_scorecard import render_security_scorecard
+from dashboard.components.executive_summary import render_executive_summary
 
 
 REPORTS_DIR = Path("reports")
@@ -106,7 +107,7 @@ def run_dashboard():
     history = get_scan_history()
 
     # ----------------------------------------------------
-    # Scorecard
+    # Endpoint Security Scorecard
     # ----------------------------------------------------
 
     if st.session_state.latest_scan is not None:
@@ -122,18 +123,44 @@ def run_dashboard():
         st.divider()
 
     # ----------------------------------------------------
+    # Executive Security Summary
+    # ----------------------------------------------------
+
+    render_executive_summary(
+
+        scan,
+
+        findings
+
+    )
+
+    st.divider()
+
+    # ----------------------------------------------------
     # Dashboard
     # ----------------------------------------------------
 
-    render_metric_cards(scan)
+    render_metric_cards(
+
+        scan
+
+    )
 
     st.divider()
 
-    render_endpoint(scan)
+    render_endpoint(
+
+        scan
+
+    )
 
     st.divider()
 
-    render_analytics(history)
+    render_analytics(
+
+        history
+
+    )
 
     st.divider()
 
