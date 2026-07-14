@@ -6,37 +6,7 @@ def calculate_risk(system_info, security_info, processes, file_results):
     findings = []
 
     # --------------------------------------------------
-    # File Integrity
-    # --------------------------------------------------
-
-    for file in file_results:
-
-        if file["status"] == "MODIFIED":
-
-            findings.append(
-
-                FindingFactory.create(
-
-                    title="Modified File",
-
-                    category="File Integrity",
-
-                    severity="Medium",
-
-                    raw_score=15,
-
-                    description=f"{file['file']} has changed since the previous scan.",
-
-                    recommendation="Verify the file modification.",
-
-                    module="File Integrity"
-
-                )
-
-            )
-
-    # --------------------------------------------------
-    # Unknown Process
+    # Unknown Process Detection
     # --------------------------------------------------
 
     for process in processes:
@@ -51,11 +21,13 @@ def calculate_risk(system_info, security_info, processes, file_results):
 
                     category="Process Analysis",
 
-                    severity="High",
+                    severity="HIGH",
 
                     raw_score=20,
 
-                    description=f"Unknown process detected (PID {process['pid']}).",
+                    description=(
+                        f"Unknown process detected (PID {process['pid']})."
+                    ),
 
                     recommendation="Investigate the process.",
 
@@ -66,17 +38,53 @@ def calculate_risk(system_info, security_info, processes, file_results):
             )
 
     # --------------------------------------------------
-    # Firewall
+    # File Integrity Detection
+    # --------------------------------------------------
+
+    for file in file_results:
+
+        if file["status"] == "MODIFIED":
+
+            findings.append(
+
+                FindingFactory.create(
+
+                    title="Modified File",
+
+                    category="File Integrity",
+
+                    severity="MEDIUM",
+
+                    raw_score=15,
+
+                    description=(
+                        f"{file['file']} has changed since the previous scan."
+                    ),
+
+                    recommendation="Verify the file modification.",
+
+                    module="File Integrity"
+
+                )
+
+            )
+
+    # --------------------------------------------------
+    # Firewall Detection
     # --------------------------------------------------
 
     firewall_profiles = security_info.get(
-        "Firewall Status",
+        "firewall_status",
         []
     )
 
+    if isinstance(firewall_profiles, dict):
+
+        firewall_profiles = [firewall_profiles]
+
     for profile in firewall_profiles:
 
-        if not profile["Enabled"]:
+        if not profile.get("Enabled", True):
 
             findings.append(
 
@@ -86,11 +94,13 @@ def calculate_risk(system_info, security_info, processes, file_results):
 
                     category="Windows Security",
 
-                    severity="Critical",
+                    severity="CRITICAL",
 
                     raw_score=40,
 
-                    description=f"{profile['Name']} firewall profile is disabled.",
+                    description=(
+                        f"{profile['Name']} firewall profile is disabled."
+                    ),
 
                     recommendation="Enable Windows Firewall immediately.",
 
@@ -104,7 +114,13 @@ def calculate_risk(system_info, security_info, processes, file_results):
     # Risk Calculation
     # --------------------------------------------------
 
-    raw_score = sum(f.raw_score for f in findings)
+    raw_score = sum(
+
+        finding.raw_score
+
+        for finding in findings
+
+    )
 
     normalized_score = min(raw_score, 100)
 

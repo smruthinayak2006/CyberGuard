@@ -6,9 +6,14 @@ def analyze_firewall(security_info):
     findings = []
 
     firewall_profiles = security_info.get(
-        "Firewall Status",
+        "firewall_status",
         []
     )
+
+    if isinstance(firewall_profiles, dict):
+
+        firewall_profiles = [firewall_profiles]
+
 
     for profile in firewall_profiles:
 

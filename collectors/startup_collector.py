@@ -1,34 +1,57 @@
-import psutil
+import winreg
 
 
-def collect_windows_services():
+RUN_KEYS = [
 
-    services = []
+    (
+        winreg.HKEY_CURRENT_USER,
+        r"Software\Microsoft\Windows\CurrentVersion\Run"
+    ),
 
-    for service in psutil.win_service_iter():
+    (
+        winreg.HKEY_LOCAL_MACHINE,
+        r"Software\Microsoft\Windows\CurrentVersion\Run"
+    )
+
+]
+
+
+def collect_startup_programs():
+
+    startup_programs = []
+
+    for hive, key_path in RUN_KEYS:
 
         try:
 
-            info = service.as_dict()
+            key = winreg.OpenKey(hive, key_path)
 
-            services.append({
+            index = 0
 
-                "name": info.get("name", ""),
+            while True:
 
-                "display_name": info.get("display_name", ""),
+                try:
 
-                "status": info.get("status", ""),
+                    name, value, _ = winreg.EnumValue(key, index)
 
-                "start_type": info.get("start_type", ""),
+                    startup_programs.append({
 
-                "username": info.get("username", ""),
+                        "name": name,
 
-                "binpath": info.get("binpath", "")
+                        "command": value,
 
-            })
+                        "registry": key_path
 
-        except Exception:
+                    })
+
+                    index += 1
+
+                except OSError:
+
+                    break
+
+        except FileNotFoundError:
 
             continue
 
-    return services
+    return startup_programs

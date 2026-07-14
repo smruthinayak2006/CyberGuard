@@ -5,6 +5,9 @@ from analyzers.process_analyzer import collect_processes
 from analyzers.file_integrity import scan_directory
 from analyzers.risk_engine import calculate_risk
 
+from collectors.startup_collector import collect_startup_programs
+from analyzers.startup_analyzer import analyze_startup_programs
+
 from database.db_manager import (
     save_file_results,
     save_findings,
@@ -34,6 +37,18 @@ def run_scan():
 
     processes = collect_processes()
 
+
+    # ----------------------------------------
+    # Startup Programs
+    # ----------------------------------------
+
+    startup_programs = collect_startup_programs()
+
+    startup_findings = analyze_startup_programs(
+        startup_programs
+    )
+
+
     # ----------------------------------------
     # File Integrity Monitoring
     # ----------------------------------------
@@ -57,6 +72,36 @@ def run_scan():
         files
 
     )
+    risk["findings"].extend(startup_findings)
+
+    risk["raw_score"] += sum(
+        finding.raw_score
+        for finding in startup_findings
+    )
+
+    risk["score"] = min(
+        risk["raw_score"],
+        100
+    )
+
+    risk["finding_count"] = len(
+        risk["findings"]
+    )
+
+    severity_order = {
+        "LOW": 1,
+        "MEDIUM": 2,
+        "HIGH": 3,
+        "CRITICAL": 4
+    }
+
+    for finding in startup_findings:
+
+        if severity_order[finding.severity] > severity_order[risk["highest_severity"]]:
+
+            risk["highest_severity"] = finding.severity
+            risk["level"] = finding.severity
+
 
     # ----------------------------------------
     # Store Findings
@@ -92,6 +137,8 @@ def run_scan():
 
         "processes": processes,
 
+        "startup_programs": startup_programs,
+        
         "files": files,
 
         "risk": risk

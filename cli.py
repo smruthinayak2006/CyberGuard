@@ -35,6 +35,8 @@ def start_cyberguard():
 
     processes = results["processes"]
 
+    startup_programs = results["startup_programs"]
+
     files = results["files"]
 
     risk = results["risk"]
@@ -71,6 +73,23 @@ def start_cyberguard():
         print(f"RAM: {process['memory']:.2f}%")
         print(f"Path: {process['path']}")
         print("-" * 50)
+
+    # ----------------------------------------
+
+    display_section("Startup Programs")
+
+    if startup_programs:
+
+        for program in startup_programs:
+
+            print(f"Name     : {program['name']}")
+            print(f"Command  : {program['command']}")
+            print(f"Registry : {program['registry']}")
+            print("-" * 60)
+
+    else:
+
+        print("No startup programs found.")
 
     # ----------------------------------------
 
