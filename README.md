@@ -275,7 +275,7 @@ Each finding includes:
 
 Users can search and filter findings by severity and module.
 
-![Recent Findings](docs/screenshots/11_recent_security_findings.png)
+![Recent Findings](docs\screenshots\07_security_findings.png)
 
 ---
 
@@ -292,7 +292,7 @@ The dashboard provides historical visibility into previous assessments, includin
 
 This enables analysts to compare historical scans and monitor endpoint security over time.
 
-![Scan History](docs/screenshots/12_scan_history.png)
+![Scan History](docs/screenshots/11_scan_history.png)
 
 ---
 
@@ -302,7 +302,7 @@ This enables analysts to compare historical scans and monitor endpoint security 
 
 The Endpoint Security Scorecard provides a quick overview of the endpoint's overall security posture by evaluating firewall status, file integrity, running processes, Windows updates, and the calculated security score.
 
-![Endpoint Security Scorecard](docs/screenshots/17_endpoint_security_scorecard.png)
+![Endpoint Security Scorecard](docs/screenshots/14_endpoint_security_scorecard.png)
 
 ---
 
@@ -322,7 +322,7 @@ These charts are generated directly from historical assessment data stored in SQ
 
 ## Security Analytics Dashboard
 
-![Security Analytics](docs/screenshots/13_security_analytics.png)
+![Security Analytics](docs/screenshots/12_security_analytics.png)
 
 ---
 
@@ -330,7 +330,7 @@ These charts are generated directly from historical assessment data stored in SQ
 
 Displays how the endpoint security score changes across assessments.
 
-![Risk Score Trend](docs/screenshots/14_risk_score_trend.png)
+![Risk Score Trend](docs/screenshots/16_risk_score_trend.png)
 
 ---
 
@@ -338,7 +338,7 @@ Displays how the endpoint security score changes across assessments.
 
 Displays the number of findings detected during each assessment.
 
-![Findings Per Scan](docs/screenshots/15_findings_per_scan.png)
+![Findings Per Scan](docs/screenshots/17_findings_per_scan.png)
 
 ---
 
@@ -355,7 +355,7 @@ Examples include:
 - Enable disabled security controls
 - Review suspicious endpoint activity
 
-![Security Recommendations](docs/screenshots/16_security_recommendations.png)
+![Security Recommendations](docs/screenshots/13_security_recommendations.png)
 
 ---
 
