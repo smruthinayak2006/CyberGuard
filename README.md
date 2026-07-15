@@ -275,7 +275,7 @@ Each finding includes:
 
 Users can search and filter findings by severity and module.
 
-![Recent Findings](docs\screenshots\07_security_findings.png)
+![Recent Findings](docs/screenshots/07_security_findings.png)
 
 ---
 
