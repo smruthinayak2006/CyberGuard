@@ -1,7 +1,14 @@
 import streamlit as st
 
-USERNAME = "admin"
-PASSWORD = "CyberGuard@123"
+from database.auth_db import initialize_users, verify_user
+
+from database.auth_db import (
+    initialize_users,
+    verify_user,
+    log_login
+)
+
+initialize_users()
 
 
 def login():
@@ -19,17 +26,29 @@ def login():
 
     if st.button("Login", use_container_width=True):
 
-        if username == USERNAME and password == PASSWORD:
+        if verify_user(username, password):
+
+            log_login(
+                username,
+                "SUCCESS"
+            )
 
             st.session_state.authenticated = True
+
             st.success("Login successful.")
+
             st.rerun()
 
         else:
 
-            st.error("Invalid username or password.")
+            log_login(
+                username,
+                "FAILED"
+            )
 
-    return False
+            st.error(
+                "Invalid username or password."
+            )
 
 
 def logout():
@@ -101,5 +120,3 @@ def logout():
 
         st.session_state.authenticated = False
         st.rerun()
-
-    
