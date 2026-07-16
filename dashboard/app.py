@@ -3,6 +3,7 @@ from pathlib import Path
 import streamlit as st
 
 from core.scan_runner import run_scan
+from dashboard.auth import login, logout
 
 from dashboard.dashboard_db import (
     get_latest_scan,
@@ -45,6 +46,10 @@ def run_dashboard():
         layout="wide"
     )
 
+    if not login():
+        return
+
+    logout()
     render_header()
 
     # ----------------------------------------------------
@@ -101,7 +106,9 @@ def run_dashboard():
     # ----------------------------------------------------
 
     scan = get_latest_scan()
-
+    if scan:
+        st.session_state.scan_time = scan["scan_time"]
+    
     findings = get_latest_findings()
 
     history = get_scan_history()
