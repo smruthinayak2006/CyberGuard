@@ -4,11 +4,14 @@ import streamlit as st
 
 from core.scan_runner import run_scan
 from dashboard.auth import login, logout
+from dashboard.components import auth_logs
+from dashboard.components.auth_logs import render_auth_logs
 
 from dashboard.dashboard_db import (
     get_latest_scan,
     get_latest_findings,
-    get_scan_history
+    get_scan_history,
+    get_auth_logs
 )
 
 from dashboard.components.header import render_header
@@ -112,6 +115,7 @@ def run_dashboard():
     findings = get_latest_findings()
 
     history = get_scan_history()
+    auth_logs = get_auth_logs()
 
     # ----------------------------------------------------
     # Endpoint Security Scorecard
@@ -184,6 +188,14 @@ def run_dashboard():
     render_recommendations(
 
         findings
+
+    )
+
+    st.divider()
+
+    render_auth_logs(
+
+        auth_logs
 
     )
 

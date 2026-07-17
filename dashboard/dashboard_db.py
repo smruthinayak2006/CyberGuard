@@ -187,3 +187,43 @@ def get_finding_count():
     conn.close()
 
     return count
+
+# ----------------------------------------------------------
+# Authentication Logs
+# ----------------------------------------------------------
+
+def get_auth_logs(limit=20):
+
+    conn = get_connection()
+
+    cursor = conn.cursor()
+
+    cursor.execute(
+
+        """
+
+        SELECT
+
+            username,
+
+            status,
+
+            login_time
+
+        FROM auth_logs
+
+        ORDER BY id DESC
+
+        LIMIT ?
+
+        """,
+
+        (limit,)
+
+    )
+
+    logs = cursor.fetchall()
+
+    conn.close()
+
+    return logs
