@@ -7,6 +7,7 @@ from reportlab.lib.styles import (
     getSampleStyleSheet,
     ParagraphStyle
 )
+
 from reportlab.lib.units import inch
 
 from reportlab.platypus import (
@@ -35,11 +36,21 @@ def add_page_number(canvas, document):
         9
     )
 
+    canvas.drawString(
+
+        40,
+
+        30,
+
+        "CyberGuard v1.0 | Internal Use Only"
+
+    )
+
     canvas.drawRightString(
 
-        7.6 * inch,
+        550,
 
-        0.5 * inch,
+        30,
 
         f"Page {document.page}"
 
@@ -187,6 +198,40 @@ def generate_report(scan):
         Spacer(1,30)
     )
 
+    metadata_table = Table([
+
+        ["Report ID", f"CG-{datetime.now().strftime('%Y%m%d%H%M%S')}"],
+
+        ["Generated On", datetime.now().strftime("%d %B %Y %H:%M")],
+
+        ["Report Version", "1.0"],
+
+        ["Classification", "Internal Use Only"]
+
+    ])
+
+    metadata_table.setStyle(
+
+        TableStyle([
+
+            ("GRID", (0,0), (-1,-1), 1, colors.grey),
+
+            ("BACKGROUND", (0,0), (0,-1), colors.HexColor("#0F4C75")),
+
+            ("TEXTCOLOR", (0,0), (0,-1), colors.white),
+
+            ("FONTNAME", (0,0), (-1,-1), "Helvetica-Bold"),
+
+            ("BOTTOMPADDING", (0,0), (-1,-1), 8)
+
+        ])
+
+    )
+
+    elements.append(metadata_table)
+
+    elements.append(Spacer(1,20))
+
     # ------------------------------------------------------------
     # Executive Summary
     # ------------------------------------------------------------
@@ -284,8 +329,52 @@ def generate_report(scan):
     )
 
     elements.append(
-        PageBreak()
+
+        Paragraph(
+
+            "<b>Risk Interpretation</b>",
+
+            styles["Heading2"]
+
+        )
+
     )
+
+    risk_text = (
+
+        f"The endpoint received a security score of "
+
+        f"<b>{risk['score']}/100</b>, resulting in an "
+
+        f"<b>{risk['level']}</b> security posture. "
+
+        f"The assessment detected "
+
+        f"<b>{risk['finding_count']}</b> finding(s). "
+
+        f"The highest observed severity was "
+
+        f"<b>{risk['highest_severity']}</b>. "
+
+        "This assessment should be reviewed by the system administrator "
+
+        "before deploying the endpoint into production."
+
+    )
+
+    elements.append(
+
+        Paragraph(
+
+            risk_text,
+
+            styles["BodyText"]
+
+        )
+
+    )
+
+    elements.append(Spacer(1,20))
 
     # ------------------------------------------------------------
     # Endpoint Information
@@ -431,11 +520,9 @@ def generate_report(scan):
 
         )
 
-    elements.append(
-        PageBreak()
-    )
+    
 
-        # ------------------------------------------------------------
+    # ------------------------------------------------------------
     # Detailed Findings
     # ------------------------------------------------------------
 
@@ -545,49 +632,81 @@ def generate_report(scan):
 
         )
 
-    elements.append(
-        PageBreak()
-    )
+    
 
-    # ------------------------------------------------------------
+    # ------------------------------------------------
     # Recommendations
-    # ------------------------------------------------------------
+    # ------------------------------------------------
 
     elements.append(
 
         Paragraph(
 
-            "Security Recommendations",
+            "<b>Security Recommendations</b>",
 
-            heading_style
+            styles["Heading2"]
 
         )
 
     )
 
+    elements.append(Spacer(1, 10))
+
     if risk["findings"]:
 
-        added = set()
+        for index, finding in enumerate(
 
-        for finding in risk["findings"]:
+            risk["findings"],
 
-            if finding.recommendation not in added:
+            start=1
 
-                added.add(
-                    finding.recommendation
-                )
+        ):
 
-                elements.append(
+            recommendation_table = Table([
 
-                    Paragraph(
+                ["Recommendation", str(index)],
 
-                        f"• {finding.recommendation}",
+                ["Finding", finding.title],
 
-                        normal_style
+                ["Priority", finding.severity],
 
-                    )
+                ["Module", finding.module],
 
-                )
+                ["Action", finding.recommendation]
+
+            ])
+
+            recommendation_table.setStyle(
+
+                TableStyle([
+
+                    ("GRID", (0, 0), (-1, -1), 1, colors.grey),
+
+                    ("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#0F4C75")),
+
+                    ("TEXTCOLOR", (0, 0), (0, -1), colors.white),
+
+                    ("FONTNAME", (0, 0), (-1, -1), "Helvetica-Bold"),
+
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+
+                    ("TOPPADDING", (0, 0), (-1, -1), 8),
+
+                ])
+
+            )
+
+            elements.append(
+
+                recommendation_table
+
+            )
+
+            elements.append(
+
+                Spacer(1, 15)
+
+            )
 
     else:
 
@@ -595,29 +714,31 @@ def generate_report(scan):
 
             Paragraph(
 
-                "No recommendations available.",
+                "No security recommendations available.",
 
-                normal_style
+                styles["BodyText"]
 
             )
 
         )
 
     elements.append(
-        Spacer(1, 24)
+
+        Spacer(1, 20)
+
     )
 
-    # ------------------------------------------------------------
+    # ------------------------------------------------
     # Assessment Summary
-    # ------------------------------------------------------------
+    # ------------------------------------------------
 
     elements.append(
 
         Paragraph(
 
-            "Assessment Summary",
+            "<b>Assessment Summary</b>",
 
-            heading_style
+            styles["Heading2"]
 
         )
 
@@ -631,13 +752,13 @@ def generate_report(scan):
 
         ["Generated", datetime.now().strftime("%d %B %Y %H:%M:%S")],
 
-        ["Hostname", system["hostname"]],
+        ["Hostname", scan["system"]["hostname"]],
 
-        ["Operating System", system["operating_system"]],
+        ["Operating System", scan["system"]["operating_system"]],
 
         ["Risk Level", risk["level"]],
 
-        ["Risk Score", f"{risk['score']} / 100"],
+        ["Risk Score", f'{risk["score"]} / 100'],
 
         ["Findings", str(risk["finding_count"])]
 
@@ -649,25 +770,21 @@ def generate_report(scan):
 
             ("GRID", (0, 0), (-1, -1), 1, colors.grey),
 
-            ("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#0B3C5D")),
+            ("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#0F4C75")),
 
             ("TEXTCOLOR", (0, 0), (0, -1), colors.white),
 
-            ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+            ("FONTNAME", (0, 0), (-1, -1), "Helvetica-Bold"),
 
-            ("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold")
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
 
         ])
 
     )
 
-    elements.append(
-        summary_table
-    )
+    elements.append(summary_table)
 
-    elements.append(
-        Spacer(1, 30)
-    )
+    elements.append(Spacer(1, 20))
 
     elements.append(
 
@@ -675,7 +792,7 @@ def generate_report(scan):
 
             "<b>Generated by CyberGuard v1.0</b>",
 
-            styles["Heading3"]
+            styles["Heading2"]
 
         )
 
@@ -685,9 +802,21 @@ def generate_report(scan):
 
         Paragraph(
 
-            "Automated Endpoint Security Assessment & Risk Reporting Platform",
+            "Enterprise Endpoint Security Assessment Platform",
 
-            normal_style
+            styles["BodyText"]
+
+        )
+
+    )
+
+    elements.append(
+
+        Paragraph(
+
+            "Classification: Internal Use Only",
+
+            styles["BodyText"]
 
         )
 
@@ -699,7 +828,7 @@ def generate_report(scan):
 
             f"Report Generated: {datetime.now().strftime('%d %B %Y %H:%M:%S')}",
 
-            normal_style
+            styles["BodyText"]
 
         )
 
