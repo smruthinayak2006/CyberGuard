@@ -1,24 +1,62 @@
 from pathlib import Path
 from datetime import datetime
 
+from reportlab.lib import colors
+from reportlab.lib.enums import TA_CENTER
+from reportlab.lib.styles import (
+    getSampleStyleSheet,
+    ParagraphStyle
+)
+from reportlab.lib.units import inch
+
 from reportlab.platypus import (
     SimpleDocTemplate,
     Paragraph,
     Spacer,
     Table,
-    TableStyle
+    TableStyle,
+    PageBreak
 )
-
-from reportlab.lib import colors
-from reportlab.lib.styles import getSampleStyleSheet
 
 
 REPORTS_DIR = Path("reports")
 
 
+# ------------------------------------------------------------
+# Footer
+# ------------------------------------------------------------
+
+def add_page_number(canvas, document):
+
+    canvas.saveState()
+
+    canvas.setFont(
+        "Helvetica",
+        9
+    )
+
+    canvas.drawRightString(
+
+        7.6 * inch,
+
+        0.5 * inch,
+
+        f"Page {document.page}"
+
+    )
+
+    canvas.restoreState()
+
+
+# ------------------------------------------------------------
+# Report
+# ------------------------------------------------------------
+
 def generate_report(scan):
 
-    REPORTS_DIR.mkdir(exist_ok=True)
+    REPORTS_DIR.mkdir(
+        exist_ok=True
+    )
 
     timestamp = datetime.now().strftime(
         "%Y-%m-%d_%H-%M-%S"
@@ -28,37 +66,78 @@ def generate_report(scan):
         f"CyberGuard_Report_{timestamp}.pdf"
     )
 
+    document = SimpleDocTemplate(
+
+        str(report_path),
+
+        rightMargin=40,
+        leftMargin=40,
+        topMargin=40,
+        bottomMargin=50
+
+    )
+
     styles = getSampleStyleSheet()
 
-    document = SimpleDocTemplate(
-        str(report_path)
+    title_style = ParagraphStyle(
+
+        "Title",
+
+        parent=styles["Heading1"],
+
+        alignment=TA_CENTER,
+
+        fontSize=24,
+
+        textColor=colors.HexColor("#0B3C5D"),
+
+        spaceAfter=18
+
     )
+
+    heading_style = ParagraphStyle(
+
+        "Heading",
+
+        parent=styles["Heading2"],
+
+        textColor=colors.HexColor("#0B3C5D"),
+
+        spaceAfter=10,
+
+        spaceBefore=10
+
+    )
+
+    normal_style = styles["BodyText"]
 
     elements = []
 
-    # ------------------------------------------------
+    risk = scan["risk"]
+
+    system = scan["system"]
+
+    # ------------------------------------------------------------
+    # Cover Page
+    # ------------------------------------------------------------
 
     elements.append(
 
         Paragraph(
 
-            "CyberGuard Security Assessment Report",
+            "CyberGuard",
 
-            styles["Heading1"]
+            title_style
 
         )
 
     )
 
-    elements.append(Spacer(1, 20))
-
-    # ------------------------------------------------
-
     elements.append(
 
         Paragraph(
 
-            "<b>Executive Summary</b>",
+            "<b>Endpoint Security Assessment Report</b>",
 
             styles["Heading2"]
 
@@ -67,83 +146,106 @@ def generate_report(scan):
     )
 
     elements.append(
-
-        Paragraph(
-
-            "This report summarizes the endpoint security assessment "
-            "performed by CyberGuard.",
-
-            styles["BodyText"]
-
-        )
-
+        Spacer(1, 25)
     )
 
-    elements.append(Spacer(1, 20))
+    cover = Table([
 
-    # ------------------------------------------------
+        ["Generated On", datetime.now().strftime("%d %B %Y %H:%M")],
 
-    endpoint_table = Table([
+        ["Hostname", system["hostname"]],
 
-        ["Hostname", scan["system"]["hostname"]],
+        ["Operating System", system["operating_system"]],
 
-        ["IP Address", scan["system"]["ip_address"]],
-
-        ["Operating System", scan["system"]["operating_system"]],
-
-        ["CPU Usage", f'{scan["system"]["cpu_usage"]}%'],
-
-        ["RAM Usage", f'{scan["system"]["ram_usage"]}%'],
-
-        ["Disk Usage", f'{scan["system"]["disk_usage"]}%']
+        ["IP Address", system["ip_address"]]
 
     ])
 
-    endpoint_table.setStyle(
+    cover.setStyle(
 
         TableStyle([
 
-            ("GRID", (0, 0), (-1, -1), 1, colors.black),
+            ("GRID",(0,0),(-1,-1),1,colors.grey),
 
-            ("BACKGROUND", (0, 0), (0, -1), colors.lightgrey),
+            ("BACKGROUND",(0,0),(0,-1),colors.HexColor("#0B3C5D")),
 
-            ("BOTTOMPADDING", (0, 0), (-1, -1), 8)
+            ("TEXTCOLOR",(0,0),(0,-1),colors.white),
+
+            ("BOTTOMPADDING",(0,0),(-1,-1),8),
+
+            ("FONTNAME",(0,0),(0,-1),"Helvetica-Bold")
 
         ])
 
     )
 
     elements.append(
+        cover
+    )
+
+    elements.append(
+        Spacer(1,30)
+    )
+
+    # ------------------------------------------------------------
+    # Executive Summary
+    # ------------------------------------------------------------
+
+    elements.append(
 
         Paragraph(
 
-            "<b>Endpoint Information</b>",
+            "Executive Summary",
 
-            styles["Heading2"]
+            heading_style
 
         )
 
     )
 
-    elements.append(endpoint_table)
+    summary = (
 
-    elements.append(Spacer(1, 20))
+        "CyberGuard completed an endpoint security assessment "
 
-    # ------------------------------------------------
+        "covering operating system security, running processes, "
 
-    risk = scan["risk"]
+        "startup programs, file integrity monitoring and "
+
+        "risk analysis."
+
+    )
+
+    elements.append(
+
+        Paragraph(
+
+            summary,
+
+            normal_style
+
+        )
+
+    )
+
+    elements.append(
+        Spacer(1,20)
+    )
+
+    # ------------------------------------------------------------
+    # Risk Summary
+    # ------------------------------------------------------------
 
     risk_table = Table([
 
-        ["Risk Score", risk["score"]],
+        ["Risk Score", f"{risk['score']} / 100"],
 
         ["Raw Score", risk["raw_score"]],
 
-        ["Risk Level", risk["level"]],
+        ["Overall Risk", risk["level"]],
 
         ["Highest Severity", risk["highest_severity"]],
 
-        ["Finding Count", risk["finding_count"]]
+        ["Total Findings", risk["finding_count"]]
 
     ])
 
@@ -151,11 +253,15 @@ def generate_report(scan):
 
         TableStyle([
 
-            ("GRID", (0, 0), (-1, -1), 1, colors.black),
+            ("GRID",(0,0),(-1,-1),1,colors.grey),
 
-            ("BACKGROUND", (0, 0), (0, -1), colors.lightgrey),
+            ("BACKGROUND",(0,0),(0,-1),colors.HexColor("#0B3C5D")),
 
-            ("BOTTOMPADDING", (0, 0), (-1, -1), 8)
+            ("TEXTCOLOR",(0,0),(0,-1),colors.white),
+
+            ("BOTTOMPADDING",(0,0),(-1,-1),8),
+
+            ("FONTNAME",(0,0),(0,-1),"Helvetica-Bold")
 
         ])
 
@@ -165,27 +271,89 @@ def generate_report(scan):
 
         Paragraph(
 
-            "<b>Risk Assessment</b>",
+            "Risk Assessment",
 
-            styles["Heading2"]
+            heading_style
 
         )
 
     )
 
-    elements.append(risk_table)
+    elements.append(
+        risk_table
+    )
 
-    elements.append(Spacer(1, 20))
+    elements.append(
+        PageBreak()
+    )
 
-    # ------------------------------------------------
+    # ------------------------------------------------------------
+    # Endpoint Information
+    # ------------------------------------------------------------
 
     elements.append(
 
         Paragraph(
 
-            "<b>Security Findings</b>",
+            "Endpoint Information",
 
-            styles["Heading2"]
+            heading_style
+
+        )
+
+    )
+
+    endpoint_table = Table([
+
+        ["Hostname", system["hostname"]],
+
+        ["Operating System", system["operating_system"]],
+
+        ["CPU Usage", f"{system['cpu_usage']} %"],
+
+        ["RAM Usage", f"{system['ram_usage']} %"],
+
+        ["Disk Usage", f"{system['disk_usage']} %"]
+
+    ])
+
+    endpoint_table.setStyle(
+
+        TableStyle([
+
+            ("GRID",(0,0),(-1,-1),1,colors.grey),
+
+            ("BACKGROUND",(0,0),(0,-1),colors.HexColor("#0B3C5D")),
+
+            ("TEXTCOLOR",(0,0),(0,-1),colors.white),
+
+            ("BOTTOMPADDING",(0,0),(-1,-1),8),
+
+            ("FONTNAME",(0,0),(0,-1),"Helvetica-Bold")
+
+        ])
+
+    )
+
+    elements.append(
+        endpoint_table
+    )
+
+    elements.append(
+        Spacer(1,20)
+    )
+
+    # ------------------------------------------------------------
+    # Security Findings
+    # ------------------------------------------------------------
+
+    elements.append(
+
+        Paragraph(
+
+            "Security Findings",
+
+            heading_style
 
         )
 
@@ -225,17 +393,29 @@ def generate_report(scan):
 
             TableStyle([
 
-                ("GRID", (0, 0), (-1, -1), 1, colors.black),
+                ("GRID",(0,0),(-1,-1),1,colors.grey),
 
-                ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
+                ("BACKGROUND",(0,0),(-1,0),colors.HexColor("#0B3C5D")),
 
-                ("BOTTOMPADDING", (0, 0), (-1, -1), 8)
+                ("TEXTCOLOR",(0,0),(-1,0),colors.white),
+
+                ("BOTTOMPADDING",(0,0),(-1,-1),8),
+
+                ("ROWBACKGROUNDS",(0,1),(-1,-1),[
+
+                    colors.whitesmoke,
+
+                    colors.beige
+
+                ])
 
             ])
 
         )
 
-        elements.append(findings_table)
+        elements.append(
+            findings_table
+        )
 
     else:
 
@@ -245,23 +425,27 @@ def generate_report(scan):
 
                 "No security findings detected.",
 
-                styles["BodyText"]
+                normal_style
 
             )
 
         )
 
-    elements.append(Spacer(1, 20))
+    elements.append(
+        PageBreak()
+    )
 
-    # ------------------------------------------------
+        # ------------------------------------------------------------
+    # Detailed Findings
+    # ------------------------------------------------------------
 
     elements.append(
 
         Paragraph(
 
-            "<b>Recommendations</b>",
+            "Detailed Findings",
 
-            styles["Heading2"]
+            heading_style
 
         )
 
@@ -275,13 +459,135 @@ def generate_report(scan):
 
                 Paragraph(
 
-                    f"• {finding.recommendation}",
+                    f"<b>{finding.finding_id} - {finding.title}</b>",
 
-                    styles["BodyText"]
+                    styles["Heading3"]
 
                 )
 
             )
+
+            elements.append(
+
+                Paragraph(
+
+                    f"<b>Severity:</b> {finding.severity}",
+
+                    normal_style
+
+                )
+
+            )
+
+            elements.append(
+
+                Paragraph(
+
+                    f"<b>Category:</b> {finding.category}",
+
+                    normal_style
+
+                )
+
+            )
+
+            elements.append(
+
+                Paragraph(
+
+                    f"<b>Module:</b> {finding.module}",
+
+                    normal_style
+
+                )
+
+            )
+
+            elements.append(
+
+                Paragraph(
+
+                    f"<b>Description:</b> {finding.description}",
+
+                    normal_style
+
+                )
+
+            )
+
+            elements.append(
+
+                Paragraph(
+
+                    f"<b>Recommendation:</b> {finding.recommendation}",
+
+                    normal_style
+
+                )
+
+            )
+
+            elements.append(
+                Spacer(1, 14)
+            )
+
+    else:
+
+        elements.append(
+
+            Paragraph(
+
+                "No security findings detected during this assessment.",
+
+                normal_style
+
+            )
+
+        )
+
+    elements.append(
+        PageBreak()
+    )
+
+    # ------------------------------------------------------------
+    # Recommendations
+    # ------------------------------------------------------------
+
+    elements.append(
+
+        Paragraph(
+
+            "Security Recommendations",
+
+            heading_style
+
+        )
+
+    )
+
+    if risk["findings"]:
+
+        added = set()
+
+        for finding in risk["findings"]:
+
+            if finding.recommendation not in added:
+
+                added.add(
+                    finding.recommendation
+                )
+
+                elements.append(
+
+                    Paragraph(
+
+                        f"• {finding.recommendation}",
+
+                        normal_style
+
+                    )
+
+                )
 
     else:
 
@@ -291,12 +597,126 @@ def generate_report(scan):
 
                 "No recommendations available.",
 
-                styles["BodyText"]
+                normal_style
 
             )
 
         )
 
-    document.build(elements)
+    elements.append(
+        Spacer(1, 24)
+    )
+
+    # ------------------------------------------------------------
+    # Assessment Summary
+    # ------------------------------------------------------------
+
+    elements.append(
+
+        Paragraph(
+
+            "Assessment Summary",
+
+            heading_style
+
+        )
+
+    )
+
+    summary_table = Table([
+
+        ["Assessment Tool", "CyberGuard"],
+
+        ["Assessment Type", "Endpoint Security Assessment"],
+
+        ["Generated", datetime.now().strftime("%d %B %Y %H:%M:%S")],
+
+        ["Hostname", system["hostname"]],
+
+        ["Operating System", system["operating_system"]],
+
+        ["Risk Level", risk["level"]],
+
+        ["Risk Score", f"{risk['score']} / 100"],
+
+        ["Findings", str(risk["finding_count"])]
+
+    ])
+
+    summary_table.setStyle(
+
+        TableStyle([
+
+            ("GRID", (0, 0), (-1, -1), 1, colors.grey),
+
+            ("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#0B3C5D")),
+
+            ("TEXTCOLOR", (0, 0), (0, -1), colors.white),
+
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+
+            ("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold")
+
+        ])
+
+    )
+
+    elements.append(
+        summary_table
+    )
+
+    elements.append(
+        Spacer(1, 30)
+    )
+
+    elements.append(
+
+        Paragraph(
+
+            "<b>Generated by CyberGuard v1.0</b>",
+
+            styles["Heading3"]
+
+        )
+
+    )
+
+    elements.append(
+
+        Paragraph(
+
+            "Automated Endpoint Security Assessment & Risk Reporting Platform",
+
+            normal_style
+
+        )
+
+    )
+
+    elements.append(
+
+        Paragraph(
+
+            f"Report Generated: {datetime.now().strftime('%d %B %Y %H:%M:%S')}",
+
+            normal_style
+
+        )
+
+    )
+
+    # ------------------------------------------------------------
+    # Build PDF
+    # ------------------------------------------------------------
+
+    document.build(
+
+        elements,
+
+        onFirstPage=add_page_number,
+
+        onLaterPages=add_page_number
+
+    )
 
     return str(report_path)

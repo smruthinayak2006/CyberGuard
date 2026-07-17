@@ -84,7 +84,7 @@ def get_latest_scan():
 
 
 # ----------------------------------------------------------
-# Latest Findings
+# Latest Findings (Current Scan Only)
 # ----------------------------------------------------------
 
 def get_latest_findings():
@@ -95,29 +95,49 @@ def get_latest_findings():
 
     cursor.execute("""
 
+        SELECT id
+
+        FROM scan_history
+
+        ORDER BY id DESC
+
+        LIMIT 1
+
+    """)
+
+    latest_scan = cursor.fetchone()
+
+    if latest_scan is None:
+
+        conn.close()
+
+        return []
+
+    latest_scan_id = latest_scan[0]
+
+    cursor.execute("""
+
         SELECT
 
             finding_id,
-
             title,
-
             severity,
-
             module,
-
             status,
-
             timestamp,
-
             recommendation
 
         FROM findings
 
-        ORDER BY id DESC
+        WHERE scan_id = ?
 
-        LIMIT 10
+        ORDER BY id ASC
 
-    """)
+    """,
+
+    (latest_scan_id,)
+
+    )
 
     findings = cursor.fetchall()
 

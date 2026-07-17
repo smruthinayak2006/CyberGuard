@@ -73,7 +73,7 @@ def calculate_risk(system_info, security_info, processes, file_results):
 
                     severity="HIGH",
 
-                    raw_score=20,
+                    raw_score=30,
 
                     description=(
                         f"Unknown process detected (PID {process['pid']})."
@@ -101,7 +101,7 @@ def calculate_risk(system_info, security_info, processes, file_results):
 
                     severity="HIGH",
 
-                    raw_score=20,
+                    raw_score=30,
 
                     description=(
                         f"{process['name']} is executing from {process['path']}"
@@ -193,7 +193,7 @@ def calculate_risk(system_info, security_info, processes, file_results):
 
                     severity="MEDIUM",
 
-                    raw_score=10,
+                    raw_score=15,
 
                     description=(
                         f"{process['name']} is consuming {process['cpu']}% CPU."
@@ -221,7 +221,7 @@ def calculate_risk(system_info, security_info, processes, file_results):
 
                     severity="LOW",
 
-                    raw_score=10,
+                    raw_score=5,
 
                     description=(
                         f"{process['name']} is consuming {process['memory']}% memory."
@@ -297,7 +297,7 @@ def calculate_risk(system_info, security_info, processes, file_results):
 
                     severity="CRITICAL",
 
-                    raw_score=40,
+                    raw_score=50,
 
                     description=(
                         f"{profile['Name']} firewall profile is disabled."
@@ -311,7 +311,7 @@ def calculate_risk(system_info, security_info, processes, file_results):
 
             )
 
-    # --------------------------------------------------
+        # --------------------------------------------------
     # Risk Calculation
     # --------------------------------------------------
 
@@ -351,15 +351,19 @@ def calculate_risk(system_info, security_info, processes, file_results):
 
             highest = finding.severity
 
-    if highest == "CRITICAL":
+    # --------------------------------------------------
+    # Overall Endpoint Risk
+    # --------------------------------------------------
+
+    if normalized_score >= 75:
 
         level = "CRITICAL"
 
-    elif highest == "HIGH":
+    elif normalized_score >= 50:
 
         level = "HIGH"
 
-    elif normalized_score >= 40:
+    elif normalized_score >= 25:
 
         level = "MEDIUM"
 

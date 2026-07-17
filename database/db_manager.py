@@ -26,22 +26,38 @@ def initialize_database():
     """)
 
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS findings(
 
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+    CREATE TABLE IF NOT EXISTS findings(
 
-            finding_id TEXT,
-            title TEXT,
-            category TEXT,
-            severity TEXT,
-            raw_score INTEGER,
-            description TEXT,
-            recommendation TEXT,
-            module TEXT,
-            status TEXT,
-            timestamp TEXT
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
 
-        )
+        scan_id INTEGER,
+
+        finding_id TEXT,
+
+        title TEXT,
+
+        severity TEXT,
+
+        category TEXT,
+
+        module TEXT,
+
+        description TEXT,
+
+        recommendation TEXT,
+
+        raw_score INTEGER,
+
+        status TEXT,
+
+        timestamp TEXT,
+
+        FOREIGN KEY(scan_id)
+            REFERENCES scan_history(id)
+
+    )
+
     """)
 
     cursor.execute("""
@@ -111,7 +127,7 @@ def save_file_results(file_results):
     conn.close()
 
 
-def save_findings(findings):
+def save_findings(scan_id, findings):
 
     conn = get_connection()
     cursor = conn.cursor()
@@ -121,7 +137,8 @@ def save_findings(findings):
         cursor.execute("""
 
             INSERT INTO findings(
-
+                       
+                scan_id,
                 finding_id,
                 title,
                 category,
@@ -135,10 +152,11 @@ def save_findings(findings):
 
             )
 
-            VALUES(?,?,?,?,?,?,?,?,?,?)
+            VALUES(?,?,?,?,?,?,?,?,?,?,?)
 
         """, (
 
+            scan_id,
             finding.finding_id,
             finding.title,
             finding.category,
@@ -209,8 +227,12 @@ def save_scan(system_info, risk):
 
     ))
 
+    scan_id = cursor.lastrowid
+
     conn.commit()
     conn.close()
+
+    return scan_id
 
 
 def get_latest_scan():
