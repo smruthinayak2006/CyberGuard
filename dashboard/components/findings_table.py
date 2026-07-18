@@ -8,7 +8,43 @@ def render_findings(findings, history):
     # Recent Findings
     # ==========================================================
 
-    st.subheader("🚨 Recent Security Findings")
+    st.subheader("🚨 Current Assessment Findings")
+
+    col1, col2, col3 = st.columns(3)
+
+    col1.metric(
+        "Findings",
+        len(findings)
+    )
+
+    high = sum(
+        1 for f in findings
+        if f[2] == "HIGH"
+    )
+
+    critical = sum(
+        1 for f in findings
+        if f[2] == "CRITICAL"
+    )
+
+    col2.metric(
+        "High/Critical",
+        high + critical
+    )
+
+    modules = len(
+        set(
+            f[3]
+            for f in findings
+        )
+    )
+
+    col3.metric(
+        "Affected Modules",
+        modules
+    )
+
+    st.divider()
 
     if findings:
 
@@ -172,7 +208,7 @@ def render_findings(findings, history):
     # Scan History
     # ==========================================================
 
-    st.subheader("📜 Scan History")
+    st.subheader("📈 Assessment History")
 
     if history:
 
@@ -183,11 +219,13 @@ def render_findings(findings, history):
             rows.append({
 
                 "Scan Time": scan[0],
-                "Risk": scan[1],
-                "Score": scan[2],
+                "Risk Level": scan[1],
+                "Risk Score": scan[2],
                 "Findings": scan[3]
 
             })
+
+        rows.reverse()
 
         history_df = pd.DataFrame(rows)
 

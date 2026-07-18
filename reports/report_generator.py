@@ -203,6 +203,8 @@ def generate_report(scan):
         ["Report ID", f"CG-{datetime.now().strftime('%Y%m%d%H%M%S')}"],
 
         ["Generated On", datetime.now().strftime("%d %B %Y %H:%M")],
+        
+        ["Scan Duration", f"{scan.get('duration', 'N/A')} sec"],
 
         ["Report Version", "1.0"],
 
@@ -342,23 +344,31 @@ def generate_report(scan):
 
     risk_text = (
 
-        f"The endpoint received a security score of "
+        f"CyberGuard identified "
+
+        f"<b>{risk['finding_count']}</b> security "
+
+        f"finding(s) during this endpoint assessment. "
+
+        f"The endpoint achieved a security score of "
 
         f"<b>{risk['score']}/100</b>, resulting in an "
 
-        f"<b>{risk['level']}</b> security posture. "
+        f"<b>{risk['level']}</b> overall security posture. "
 
-        f"The assessment detected "
+        f"The highest severity observed during the assessment "
 
-        f"<b>{risk['finding_count']}</b> finding(s). "
+        f"was <b>{risk['highest_severity']}</b>. "
 
-        f"The highest observed severity was "
+        "The identified findings may increase the endpoint's "
 
-        f"<b>{risk['highest_severity']}</b>. "
+        "attack surface if left unresolved. It is recommended "
 
-        "This assessment should be reviewed by the system administrator "
+        "that HIGH and CRITICAL findings be remediated and the "
 
-        "before deploying the endpoint into production."
+        "system be reassessed before deployment into a "
+
+        "production environment."
 
     )
 
@@ -397,6 +407,10 @@ def generate_report(scan):
         ["Hostname", system["hostname"]],
 
         ["Operating System", system["operating_system"]],
+
+        ["OS Version", system["os_version"]],
+
+        ["Architecture", system["architecture"]],
 
         ["CPU Usage", f"{system['cpu_usage']} %"],
 
@@ -785,6 +799,25 @@ def generate_report(scan):
     elements.append(summary_table)
 
     elements.append(Spacer(1, 20))
+
+    elements.append(
+        Paragraph(
+            "Disclaimer",
+            heading_style
+        )
+    )
+
+    elements.append(
+        Paragraph(
+            "This report was generated automatically by CyberGuard. "
+            "The findings are based on the system state at the time of "
+            "assessment and should be validated by a security analyst "
+            "before making operational or compliance decisions.",
+            normal_style
+        )
+    )
+
+    elements.append(Spacer(1,20))
 
     elements.append(
 
