@@ -2,147 +2,130 @@
 
 ## Overview
 
-CyberGuard uses SQLite as its local database to store scan history, security findings, and file integrity monitoring results.
+CyberGuard uses SQLite as a lightweight local database to store assessment results, security findings, authentication activity, and file integrity records. The database supports historical analysis, dashboard visualization, and PDF report generation without requiring a separate database server.
 
-SQLite was selected because it is lightweight, requires no separate database server, and is suitable for standalone endpoint security applications.
+**Database File**
 
-Database file:
-
-```
+```text
 database/cyberguard.db
 ```
 
 ---
 
-# Database Tables
+# Database Schema
 
-CyberGuard currently uses three primary tables:
+CyberGuard consists of four primary tables.
 
-- scan_history
-- findings
-- file_integrity
+```text
+                scan_history
+                     │
+          One Scan ──┼──────────────┐
+                     │              │
+                     ▼              ▼
+               findings      file_integrity
+
+                     ▲
+                     │
+                auth_logs
+```
 
 ---
 
-# 1. scan_history
+# Tables
 
-Stores a summary of every endpoint assessment.
+## 1. scan_history
 
-Purpose:
-
-- Maintain assessment history
-- Display dashboard metrics
-- Track overall risk over multiple scans
-
-### Fields
+Stores a summary of every completed endpoint assessment.
 
 | Column | Description |
 |---------|-------------|
-| id | Primary Key |
+| id | Primary key |
 | hostname | Endpoint hostname |
-| ip_address | IP address |
+| ip_address | Endpoint IP address |
 | operating_system | Operating system |
 | cpu_usage | CPU usage (%) |
 | ram_usage | RAM usage (%) |
 | disk_usage | Disk usage (%) |
-| raw_score | Calculated raw risk score |
-| normalized_score | Risk score out of 100 |
+| raw_score | Calculated risk score |
+| normalized_score | Risk score (0–100) |
 | highest_severity | Highest detected severity |
-| overall_risk | Overall risk level |
-| total_findings | Number of findings |
-| scan_time | Scan timestamp |
+| risk_level | Overall security posture |
+| finding_count | Total findings |
+| scan_time | Assessment timestamp |
 
 ---
 
-# 2. findings
+## 2. findings
 
-Stores every security finding detected during an assessment.
-
-Purpose:
-
-- Display findings in the dashboard
-- Generate PDF reports
-- Maintain historical findings
-
-### Fields
+Stores every security finding generated during an assessment.
 
 | Column | Description |
 |---------|-------------|
-| id | Primary Key |
+| id | Primary key |
+| scan_id | Associated assessment |
 | finding_id | Finding identifier |
 | title | Finding title |
 | severity | Severity level |
 | category | Finding category |
-| raw_score | Risk score contribution |
 | module | Detection module |
-| recommendation | Suggested action |
-| timestamp | Detection time |
+| description | Finding details |
+| recommendation | Suggested remediation |
+| raw_score | Risk contribution |
+| status | Finding status |
+| timestamp | Detection timestamp |
 
 ---
 
-# 3. file_integrity
+## 3. file_integrity
 
-Stores information about monitored files.
-
-Purpose:
-
-- Maintain baseline hashes
-- Detect file modifications
-- Support file integrity monitoring
-
-### Fields
+Stores file integrity monitoring results.
 
 | Column | Description |
 |---------|-------------|
-| id | Primary Key |
-| file_path | File location |
+| id | Primary key |
+| file_path | Monitored file |
 | sha256 | SHA-256 hash |
-| status | Current file status |
+| status | File status |
 | scan_time | Scan timestamp |
 
 ---
 
-# Database Relationships
+## 4. auth_logs
 
-```
-                scan_history
-                      │
-                      │
-      -------------------------------
-      │                             │
-      ▼                             ▼
- findings                  file_integrity
-```
+Stores dashboard authentication events.
 
-Each assessment stores:
-
-- One scan history record
-- Multiple findings
-- Multiple monitored files
+| Column | Description |
+|---------|-------------|
+| id | Primary key |
+| username | User account |
+| status | Login result |
+| login_time | Authentication timestamp |
 
 ---
 
 # Data Flow
 
-```
-Endpoint Scan
-      │
-      ▼
-Collect Results
-      │
-      ▼
-Risk Calculation
-      │
-      ▼
-Save Scan History
-      │
-      ▼
-Save Findings
-      │
-      ▼
-Save File Integrity Results
-      │
-      ▼
+```text
+Start Assessment
+        │
+        ▼
+Collect Endpoint Data
+        │
+        ▼
+Analyze Security
+        │
+        ▼
+Calculate Risk Score
+        │
+        ▼
+Store Assessment Results
+        │
+        ├── scan_history
+        ├── findings
+        ├── file_integrity
+        └── auth_logs
+        │
+        ▼
 Dashboard & PDF Report
 ```
 
@@ -150,30 +133,17 @@ Dashboard & PDF Report
 
 # Why SQLite?
 
-SQLite provides several advantages for CyberGuard:
+SQLite was selected because it is:
 
 - Lightweight
-- No server installation
-- Easy deployment
-- Portable database file
-- Fast local access
-- Suitable for internship-scale projects
+- Serverless
+- Easy to deploy
+- Portable
+- Fast for local storage
+- Well suited for a standalone endpoint security application
 
 ---
 
-# Future Improvements
+## Summary
 
-Potential future enhancements include:
-
-- PostgreSQL support
-- Remote database synchronization
-- Multi-endpoint storage
-- Historical trend analysis
-- Finding search and filtering
-- Scan retention policies
-
----
-
-# Summary
-
-CyberGuard stores assessment data locally using SQLite. The database maintains scan history, security findings, and file integrity information, allowing the dashboard and PDF report generator to present both current and historical assessment results.
+CyberGuard uses SQLite to maintain assessment history, security findings, authentication activity, and file integrity records. This enables the dashboard and PDF reports to present both the latest assessment and historical security data while keeping the application simple, portable, and self-contained.

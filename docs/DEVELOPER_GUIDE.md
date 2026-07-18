@@ -2,22 +2,20 @@
 
 ## Overview
 
-This document provides instructions for setting up, running, and extending the CyberGuard project.
-
-CyberGuard is built using Python and follows a modular architecture, allowing individual components to be maintained and extended independently.
+This guide explains how to set up, run, and understand the CyberGuard project. CyberGuard is a modular Python application for Windows endpoint security assessment with both a Command Line Interface (CLI) and a Streamlit Dashboard.
 
 ---
 
-# Project Requirements
+# Requirements
 
-- Python 3.x
 - Windows Operating System
+- Python 3.13 or later
 - SQLite
 - Streamlit
 
 ---
 
-# Project Setup
+# Installation
 
 ## Clone the Repository
 
@@ -27,25 +25,17 @@ git clone https://github.com/smruthinayak2006/CyberGuard.git
 cd CyberGuard
 ```
 
----
-
-## Create Virtual Environment
+## Create a Virtual Environment
 
 ```bash
 python -m venv venv
 ```
 
----
-
-## Activate Virtual Environment
-
-Windows
+## Activate the Environment
 
 ```bash
 venv\Scripts\activate
 ```
-
----
 
 ## Install Dependencies
 
@@ -55,115 +45,112 @@ pip install -r requirements.txt
 
 ---
 
-# Running the Project
+# Running CyberGuard
 
-## Command Line Interface
+## Command-Line Assessment
 
 ```bash
 python cli.py
 ```
 
-The CLI performs a complete endpoint assessment and displays the results in the terminal.
+Runs a complete endpoint assessment and displays the results in the terminal.
 
 ---
 
-## Dashboard
+## Streamlit Dashboard
 
 ```bash
 streamlit run app.py
 ```
 
-The Streamlit dashboard allows users to:
+The dashboard provides:
 
-- Start a security assessment
-- View endpoint information
-- Monitor findings
-- Download PDF reports
+- Secure authentication
+- Endpoint assessment
+- Executive security summary
+- Security analytics
+- Findings explorer
+- Assessment history
+- Authentication logs
+- PDF report download
 
 ---
 
-# Project Modules
+# Project Structure
 
-| Folder | Purpose |
-|---------|----------|
+| Folder | Responsibility |
+|---------|----------------|
 | analyzers | Security analysis modules |
-| collectors | Endpoint data collection |
-| dashboard | Streamlit user interface |
-| database | SQLite database management |
-| reports | PDF report generation |
-| core | Main scan workflow |
-| models | Data models |
-| scanners | Scanner components |
+| collectors | Endpoint information collection |
+| core | Assessment workflow |
+| dashboard | Streamlit dashboard |
+| database | SQLite database and authentication |
 | docs | Project documentation |
+| reports | PDF report generation |
+| test_files | File integrity monitoring data |
 
 ---
 
-# Scan Flow
+# Assessment Workflow
 
-```
+```text
 Start Assessment
-
-↓
-
+        │
+        ▼
 Collect Endpoint Information
-
-↓
-
-Windows Security Audit
-
-↓
-
-Process Analysis
-
-↓
-
-File Integrity Monitoring
-
-↓
-
-Risk Calculation
-
-↓
-
-Save Results
-
-↓
-
-Generate PDF Report
-
-↓
-
-Dashboard Update
+        │
+        ▼
+Audit Windows Security
+        │
+        ▼
+Analyze Processes
+        │
+        ▼
+Analyze Startup Programs
+        │
+        ▼
+Verify File Integrity
+        │
+        ▼
+Calculate Risk Score
+        │
+        ▼
+Store Results
+        │
+        ├── Dashboard
+        └── PDF Report
 ```
 
 ---
 
 # Database
 
-CyberGuard stores scan results locally in:
+CyberGuard stores assessment data in:
 
-```
+```text
 database/cyberguard.db
 ```
 
-The database stores:
+The database maintains:
 
-- Scan history
+- Assessment history
 - Security findings
-- File integrity results
+- File integrity records
+- Authentication logs
 
 ---
 
 # Generated Reports
 
-Reports are saved automatically inside:
+Assessment reports are automatically generated in:
 
-```
+```text
 reports/
 ```
 
-Each report contains:
+Each report includes:
 
+- Executive Summary
 - Endpoint Information
 - Risk Assessment
 - Security Findings
@@ -171,46 +158,34 @@ Each report contains:
 
 ---
 
-# Extending CyberGuard
-
-Developers can enhance the project by adding:
-
-- Additional Windows security checks
-- Linux support
-- New detection modules
-- Dashboard enhancements
-- Additional report formats
-
----
-
 # Troubleshooting
 
-## Dashboard does not start
+### Dashboard does not start
 
 Verify that Streamlit is installed.
 
-```
+```bash
 pip install streamlit
 ```
 
 ---
 
-## Database not created
+### Database not created
 
-Run a scan once using:
+Run the CLI assessment once.
 
-```
+```bash
 python cli.py
 ```
 
 ---
 
-## Missing PDF report
+### PDF report not generated
 
-Complete an assessment before downloading a report.
+Complete an assessment before attempting to download the report.
 
 ---
 
-# Summary
+## Summary
 
-CyberGuard follows a modular design, making it easy to understand, maintain, and extend. New modules can be added without affecting the overall project workflow.
+CyberGuard follows a modular architecture where data collection, security analysis, risk assessment, persistence, reporting, and visualization are separated into independent components. This organization keeps the project structured, maintainable, and easy to understand.

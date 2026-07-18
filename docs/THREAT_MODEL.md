@@ -2,136 +2,107 @@
 
 ## Overview
 
-CyberGuard is designed to perform basic endpoint security assessments on Windows systems. It identifies common security indicators, collects system information, and generates a summarized security report.
-
-This document outlines the scope of the project, the threats it attempts to identify, and its current limitations.
+CyberGuard is a Windows endpoint security assessment platform that evaluates the security posture of a system through local data collection, security analysis, file integrity monitoring, and rule-based risk assessment. This document defines the assets assessed, the threats considered, and the current assessment scope.
 
 ---
 
-# Assets
+# Protected Assets
 
-CyberGuard assesses the following endpoint assets:
+CyberGuard evaluates the following endpoint assets:
 
-- Operating System information
-- Hostname
-- IP Address
-- CPU usage
-- RAM usage
-- Disk usage
+- Operating system information
+- Hostname and IP address
+- CPU, RAM, and disk utilization
 - Running processes
-- Windows Firewall status
+- Startup programs
+- Windows Firewall configuration
 - Local user accounts
 - Installed Windows updates
 - Monitored files
 
 ---
 
-# Security Checks
+# Threat Coverage
 
-The current implementation performs the following security checks.
+CyberGuard is designed to identify indicators of the following security risks:
 
-## Endpoint Information
-
-Collects basic information about the endpoint including:
-
-- Hostname
-- Username
-- Operating System
-- IP Address
-- Boot Time
-- CPU usage
-- Memory usage
-- Disk usage
+| Threat | Detection Method |
+|---------|------------------|
+| Unknown or suspicious processes | Process analysis |
+| Processes executing from untrusted locations | Process analysis |
+| Unexpected startup entries | Startup analysis |
+| Modified monitored files | SHA-256 file integrity monitoring |
+| Disabled Windows Firewall | Windows security audit |
+| Basic endpoint misconfigurations | Windows security audit |
 
 ---
 
-## Windows Security Audit
+# Assessment Workflow
 
-Verifies:
-
-- Firewall status
-- Local user accounts
-- Installed Windows updates
-
----
-
-## Process Analysis
-
-Collects information about running processes including:
-
-- Process ID
-- Process name
-- CPU usage
-- Memory usage
-- Executable path
-
-The analyzer generates findings based on predefined detection rules.
-
----
-
-## File Integrity Monitoring
-
-CyberGuard calculates SHA-256 hashes for monitored files.
-
-Each scan compares the current hash with the stored baseline to determine whether a file has changed.
-
-Possible states include:
-
-- Unchanged
-- Modified
-- New file
+```text
+Endpoint Assessment
+        │
+        ▼
+Collect Endpoint Information
+        │
+        ▼
+Audit Windows Security
+        │
+        ▼
+Analyze Processes
+        │
+        ▼
+Analyze Startup Programs
+        │
+        ▼
+Verify File Integrity
+        │
+        ▼
+Calculate Risk Score
+        │
+        ▼
+Generate Dashboard & PDF Report
+```
 
 ---
 
 # Risk Assessment
 
-CyberGuard combines the results from all assessment modules to calculate an overall security score.
+CyberGuard consolidates findings from all assessment modules to determine the endpoint's security posture.
 
 The assessment includes:
 
-- Raw Score
-- Normalized Score
+- Raw Risk Score
+- Normalized Security Score
 - Highest Severity
-- Overall Risk
+- Overall Risk Level
 - Total Findings
-
----
-
-# Current Threat Coverage
-
-CyberGuard currently assists in identifying:
-
-- Unknown or suspicious processes
-- Unexpected file modifications
-- Disabled Windows Firewall
-- Basic endpoint security misconfigurations
 
 ---
 
 # Out of Scope
 
-The current version of CyberGuard does **not** provide:
+CyberGuard is **not** intended to perform:
 
 - Malware detection
-- Antivirus capabilities
+- Antivirus protection
 - Real-time monitoring
 - Network intrusion detection
-- Memory forensics
 - Vulnerability scanning
-- Log analysis
+- Memory forensics
 - Threat intelligence integration
-- Cloud-based management
 - Automatic incident response
+- Cloud-based endpoint management
 
 ---
 
 # Assumptions
 
-The project assumes that:
+CyberGuard assumes:
 
-- It is executed on a Windows endpoint.
-- The user has permission to collect system information.
-- SQLite is available for local data storage.
+- The assessment is executed on a Windows endpoint.
+- The user has permission to collect endpoint information.
+- SQLite is available for local storage.
 - Required Python dependencies are installed.
 
 ---
@@ -142,29 +113,12 @@ Current limitations include:
 
 - Windows-only implementation
 - Local SQLite database
-- Static detection rules
-- Limited process analysis
-- Manual scan execution
-- No centralized management
+- Rule-based detection logic
+- Manual assessment execution
+- Single-endpoint assessment
 
 ---
 
-# Future Improvements
+## Summary
 
-Potential enhancements include:
-
-- Linux support
-- Real-time monitoring
-- Advanced detection rules
-- Scheduled assessments
-- Email notifications
-- Network security checks
-- JSON and CSV report export
-- Dashboard analytics
-- Multi-endpoint management
-
----
-
-# Summary
-
-CyberGuard provides a lightweight endpoint security assessment solution for educational and internship purposes. It combines endpoint information collection, Windows security auditing, process analysis, file integrity monitoring, risk assessment, and reporting into a modular Python application.
+CyberGuard provides a lightweight endpoint security assessment solution by combining endpoint information collection, Windows security auditing, process and startup analysis, file integrity monitoring, and rule-based risk assessment into a modular Python application. The generated findings are intended to support security assessment and should be validated before operational or compliance decisions are made.
